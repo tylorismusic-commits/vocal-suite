@@ -51,6 +51,8 @@ host load test. The vendored `hearth-dsp` headers are included.
 
 ## Using it
 
+See [docs/manual.md](docs/manual.md) for the quick manual and preset tips.
+
 1. Press **SET LEVEL** on the INPUT page and sing for two seconds. The input
    trim moves so the loudest phrase lands in the green zone.
 2. Open the preset browser and filter by **STYLE**, **VOICE** and
