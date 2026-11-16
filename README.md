@@ -1,5 +1,7 @@
 # Vocal Suite
 
+![Vocal Suite](docs/vocal-suite.png)
+
 An eight-stage vocal strip for Linux, built for fast rock and metal vocals and
 usable on pop, rap, podcast and spoken word. One plugin, CLAP and LV2, with a
 single fixed serial chain.
