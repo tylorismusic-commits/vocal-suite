@@ -53,9 +53,9 @@ int main(int argc, char** argv) {
   }
 
   float v = 3.5f;
-  desc->port_event(ui, 4 + 56 + 2, sizeof(float), 0, &v);
-  desc->port_event(ui, 4 + 56 + 8, sizeof(float), 0, &v);
-  desc->port_event(ui, 4 + 56 + 10, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + 56 + 3, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + 56 + 11, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + 56 + 13, sizeof(float), 0, &v);
   for (int i = 0; i < 5; ++i) {
     idle->idle(ui);
   }

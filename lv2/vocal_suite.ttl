@@ -78,7 +78,7 @@
     <#output> ,
     <#limit_on> ;
   lv2:port
-    <#learn_input> , <#learn_sib> ,
+    <#learn_input> , <#learn_sib> , <#compare> ,
     <#comp_gr> , <#sib_gr> , <#harsh_gr> , <#lim_gr> ,
     <#in_l> , <#in_r> , <#out_l> , <#out_r> ,
     <#input_learn_peak> , <#sib_learn_hz> , <#sib_learn_valid> ,
@@ -704,8 +704,13 @@
   lv2:default 0 ; lv2:minimum 0 ; lv2:maximum 1 ;
   lv2:portProperty lv2:toggled .
 
+<#compare> a lv2:InputPort, lv2:ControlPort ;
+  lv2:index 62 ; lv2:symbol "compare" ; lv2:name "Compare Dry" ;
+  lv2:default 0 ; lv2:minimum 0 ; lv2:maximum 1 ;
+  lv2:portProperty lv2:toggled .
+
 <#comp_gr> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 62 ;
+  lv2:index 63 ;
   lv2:symbol "comp_gr" ;
   lv2:name "comp_gr" ;
   lv2:minimum -120 ;
@@ -714,7 +719,7 @@
   units:unit units:db .
 
 <#sib_gr> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 63 ;
+  lv2:index 64 ;
   lv2:symbol "sib_gr" ;
   lv2:name "sib_gr" ;
   lv2:minimum -120 ;
@@ -723,7 +728,7 @@
   units:unit units:db .
 
 <#harsh_gr> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 64 ;
+  lv2:index 65 ;
   lv2:symbol "harsh_gr" ;
   lv2:name "harsh_gr" ;
   lv2:minimum -120 ;
@@ -732,7 +737,7 @@
   units:unit units:db .
 
 <#lim_gr> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 65 ;
+  lv2:index 66 ;
   lv2:symbol "lim_gr" ;
   lv2:name "lim_gr" ;
   lv2:minimum -120 ;
@@ -741,7 +746,7 @@
   units:unit units:db .
 
 <#out_l> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 66 ;
+  lv2:index 67 ;
   lv2:symbol "out_l" ;
   lv2:name "out_l" ;
   lv2:minimum -120 ;
@@ -750,7 +755,7 @@
   units:unit units:db .
 
 <#out_r> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 67 ;
+  lv2:index 68 ;
   lv2:symbol "out_r" ;
   lv2:name "out_r" ;
   lv2:minimum -120 ;
@@ -759,7 +764,7 @@
   units:unit units:db .
 
 <#in_l> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 68 ;
+  lv2:index 69 ;
   lv2:symbol "in_l" ;
   lv2:name "in_l" ;
   lv2:minimum -120 ;
@@ -768,7 +773,7 @@
   units:unit units:db .
 
 <#in_r> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 69 ;
+  lv2:index 70 ;
   lv2:symbol "in_r" ;
   lv2:name "in_r" ;
   lv2:minimum -120 ;
@@ -777,7 +782,7 @@
   units:unit units:db .
 
 <#input_learn_peak> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 70 ;
+  lv2:index 71 ;
   lv2:symbol "input_learn_peak" ;
   lv2:name "input_learn_peak" ;
   lv2:minimum -120 ;
@@ -786,7 +791,7 @@
   units:unit units:db .
 
 <#sib_learn_hz> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 71 ;
+  lv2:index 72 ;
   lv2:symbol "sib_learn_hz" ;
   lv2:name "sib_learn_hz" ;
   lv2:minimum -120 ;
@@ -795,7 +800,7 @@
   units:unit units:db .
 
 <#sib_learn_valid> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 72 ;
+  lv2:index 73 ;
   lv2:symbol "sib_learn_valid" ;
   lv2:name "sib_learn_valid" ;
   lv2:minimum -120 ;
@@ -804,7 +809,7 @@
   units:unit units:db .
 
 <#latency> a lv2:OutputPort, lv2:ControlPort ;
-  lv2:index 73 ;
+  lv2:index 74 ;
   lv2:symbol "latency" ;
   lv2:name "Latency" ;
   lv2:designation lv2:latency ;
@@ -813,7 +818,7 @@
   lv2:default 0 .
 
 <#time> a lv2:InputPort, atom:Sequence ;
-  lv2:index 74 ;
+  lv2:index 75 ;
   lv2:symbol "time" ;
   lv2:name "Time" ;
   lv2:designation time:position ;

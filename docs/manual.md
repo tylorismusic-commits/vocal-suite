@@ -6,7 +6,7 @@
    moves so the peak sits in the green zone (about −12 dBFS).
 2. **Preset browser.** Filter by **STYLE**, **VOICE** and **INTENSITY**, then
    pick the closest preset.
-3. **COMPARE.** Hold it to hear the dry signal. Release to return.
+3. **COMPARE.** Click it to toggle the dry signal; click again to return.
 
 Most presets need one or two moves after that. The recommended-range arc on
 each knob shows where it usually sits.

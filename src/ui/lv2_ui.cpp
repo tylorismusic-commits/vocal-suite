@@ -57,6 +57,7 @@ struct Ui {
   bool dirty = true;
   bool lastLearnInput = false;
   bool lastLearnSib = false;
+  bool lastCompare = false;
   std::chrono::steady_clock::time_point lastFrame{};
 
   // Largest uniform scale that fits the panel into the host allocation.
@@ -183,6 +184,14 @@ struct Ui {
         write(controller, kFirstParam + vocal::P_COUNT + 1, sizeof(float), 0, &v);
       }
       lastLearnSib = learnSib;
+    }
+    const bool compare = shared.compare.load(std::memory_order_relaxed);
+    if (compare != lastCompare) {
+      const float v = compare ? 1.0f : 0.0f;
+      if (write) {
+        write(controller, kFirstParam + vocal::P_COUNT + 2, sizeof(float), 0, &v);
+      }
+      lastCompare = compare;
     }
 
     // Letterbox: dark surround, panel centred and uniformly scaled.
@@ -347,13 +356,11 @@ void uiPortEvent(LV2UI_Handle handle, uint32_t port, uint32_t size,
   // Meter ports follow the parameter block.
   constexpr uint32_t kLearnInput = kFirstParam + vocal::P_COUNT;
   constexpr uint32_t kLearnSib = kLearnInput + 1;
-  if (port == kLearnInput) {
+  constexpr uint32_t kCompare = kLearnSib + 1;
+  if (port == kLearnInput || port == kLearnSib || port == kCompare) {
     return;
   }
-  if (port == kLearnSib) {
-    return;
-  }
-  constexpr uint32_t kMeterBase = kLearnSib + 1;
+  constexpr uint32_t kMeterBase = kCompare + 1;
   switch (port) {
     case kMeterBase: ui->shared.compGrDb.store(v); break;
     case kMeterBase + 1: ui->shared.sibGrDb.store(v); break;

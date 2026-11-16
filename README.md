@@ -59,7 +59,7 @@ See [docs/manual.md](docs/manual.md) for the quick manual and preset tips.
    **INTENSITY**.
 3. Adjust **COMP** for control, **DRIVE** for attitude, and **ECHO/SPACE** for
    depth. The recommended-range arc on each knob shows where it usually sits.
-4. Hold **COMPARE** to hear the dry signal.
+4. Click **COMPARE** to toggle the dry signal; click again to return.
 
 The default **Init — Natural** preset is a clean, level-neutral starting
 point. **Modern Metal Lead** is the flagship rock/metal preset.

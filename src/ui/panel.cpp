@@ -760,7 +760,7 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
     roundRect(cr, ww.x, ww.y, ww.w, ww.h, 4);
     setRgb(cr, held ? kAccent : Rgb{0.20, 0.21, 0.22});
     cairo_fill(cr);
-    text(cr, "COMPARE", ww.x + ww.w * 0.5, ww.y + 18, 10, 1,
+    text(cr, held ? "DRY" : "COMPARE", ww.x + ww.w * 0.5, ww.y + 18, 10, 1,
          held ? 0.10 : 0.80, held ? 0.08 : 0.80, held ? 0.05 : 0.80);
   }
 }
@@ -918,7 +918,15 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
                 shared.inPeakRDb.load(), "INPUT");
       drawMeter(cr, 540, 220, 90, 240, shared.outPeakLDb.load(),
                 shared.outPeakRDb.load(), "OUTPUT");
-      drawGrBar(cr, 680, 260, 26, 140, shared.limGrDb.load(), 18.0, "LIMIT");
+      {
+        const char* dbLabels[6] = {"0", "-12", "-24", "-36", "-48", "-60"};
+        for (int i = 0; i < 6; ++i) {
+          const double yy = 224 + (240 - 8) * i / 5.0;
+          text(cr, dbLabels[i], 515, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
+          text(cr, dbLabels[i], 635, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
+        }
+      }
+      drawGrBar(cr, 700, 260, 26, 140, shared.limGrDb.load(), 18.0, "LIMIT");
       text(cr, "The limiter is a safety catch, not a mastering limiter.",
            60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
@@ -1429,9 +1437,8 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
     }
     if (w.kind == Kind::Button) {
       if (w.param == kCompareButton) {
-        shared.compare.store(true, std::memory_order_relaxed);
-        dragParam_ = static_cast<int>(kCompareButton);
-        dragKind_ = Kind::Button;
+        shared.compare.store(!shared.compare.load(std::memory_order_relaxed),
+                             std::memory_order_relaxed);
       } else if (w.param == kLearnLevelButton) {
         shared.inputLearnPeakDb.store(-120.0f, std::memory_order_relaxed);
         shared.inputLearnActive.store(true, std::memory_order_relaxed);
@@ -1495,10 +1502,7 @@ bool Panel::pointerMove(Shared& shared, PanelState& state, double x, double y,
   return true;
 }
 
-void Panel::pointerUp(Shared& shared) {
-  if (dragParam_ == P_COUNT) {
-    shared.compare.store(false, std::memory_order_relaxed);
-  }
+void Panel::pointerUp(Shared& /*shared*/) {
   dragParam_ = -1;
   dragKind_ = Kind::Knob;
 }
@@ -1545,6 +1549,7 @@ void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
   for (uint32_t i = 0; i < P_COUNT; ++i) {
     shared.set(i, p.values[i]);
   }
+  shared.compare.store(false, std::memory_order_relaxed);
   state.presetIndex = index;
   state.presetDirty = false;
 }

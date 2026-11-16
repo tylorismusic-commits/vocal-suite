@@ -32,6 +32,7 @@ enum Port : uint32_t {
   PORT_FIRST_PARAM = 4,
   PORT_LEARN_INPUT = PORT_FIRST_PARAM + vocal::P_COUNT,
   PORT_LEARN_SIB,
+  PORT_COMPARE,
   PORT_COMP_GR,
   PORT_SIB_GR,
   PORT_HARSH_GR,
@@ -70,6 +71,7 @@ struct Plugin {
   float* audioOutR = nullptr;
   float* learnInput = nullptr;
   float* learnSib = nullptr;
+  float* compare = nullptr;
   float* compGr = nullptr;
   float* sibGr = nullptr;
   float* harshGr = nullptr;
@@ -121,6 +123,7 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
     case PORT_AUDIO_OUT_R: p->audioOutR = static_cast<float*>(data); break;
     case PORT_LEARN_INPUT: p->learnInput = static_cast<float*>(data); break;
     case PORT_LEARN_SIB: p->learnSib = static_cast<float*>(data); break;
+    case PORT_COMPARE: p->compare = static_cast<float*>(data); break;
     case PORT_COMP_GR: p->compGr = static_cast<float*>(data); break;
     case PORT_SIB_GR: p->sibGr = static_cast<float*>(data); break;
     case PORT_HARSH_GR: p->harshGr = static_cast<float*>(data); break;

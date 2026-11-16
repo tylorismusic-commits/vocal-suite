@@ -66,6 +66,15 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 64; ++i) {
     assert(std::isfinite(audioOutL[i]) && std::isfinite(audioOutR[i]));
   }
+
+  // The compare port is a dry monitor: output must equal input.
+  values[4 + 56 + 2] = 1.0f;  // compare
+  lilv_instance_run(inst, 64);
+  for (int i = 0; i < 64; ++i) {
+    assert(std::fabs(audioOutL[i] - audioInL[i]) < 1.0e-6f);
+    assert(std::fabs(audioOutR[i] - audioInR[i]) < 1.0e-6f);
+  }
+  values[4 + 56 + 2] = 0.0f;
   lilv_instance_deactivate(inst);
   lilv_instance_free(inst);
   lilv_world_free(world);

@@ -121,7 +121,7 @@ int main() {
                 i + 1 < vocal::P_COUNT ? " ," : " ;");
   }
   std::printf("  lv2:port\n");
-  std::printf("    <#learn_input> , <#learn_sib> ,\n");
+  std::printf("    <#learn_input> , <#learn_sib> , <#compare> ,\n");
   std::printf("    <#comp_gr> , <#sib_gr> , <#harsh_gr> , <#lim_gr> ,\n");
   std::printf("    <#in_l> , <#in_r> , <#out_l> , <#out_r> ,\n");
   std::printf("    <#input_learn_peak> , <#sib_learn_hz> , <#sib_learn_valid> ,\n");
@@ -155,12 +155,16 @@ int main() {
   std::printf("  lv2:index %u ; lv2:symbol \"learn_sib\" ; lv2:name \"Learn Sibilance\" ;\n", 4 + vocal::P_COUNT + 1);
   std::printf("  lv2:default 0 ; lv2:minimum 0 ; lv2:maximum 1 ;\n");
   std::printf("  lv2:portProperty lv2:toggled .\n\n");
+  std::printf("<#compare> a lv2:InputPort, lv2:ControlPort ;\n");
+  std::printf("  lv2:index %u ; lv2:symbol \"compare\" ; lv2:name \"Compare Dry\" ;\n", 4 + vocal::P_COUNT + 2);
+  std::printf("  lv2:default 0 ; lv2:minimum 0 ; lv2:maximum 1 ;\n");
+  std::printf("  lv2:portProperty lv2:toggled .\n\n");
 
   const char* meters[] = {"comp_gr", "sib_gr", "harsh_gr", "lim_gr",
                           "out_l", "out_r", "in_l", "in_r",
                           "input_learn_peak", "sib_learn_hz", "sib_learn_valid"};
   for (int i = 0; i < 11; ++i) {
-    const uint32_t index = 4 + vocal::P_COUNT + 2 + i;
+    const uint32_t index = 4 + vocal::P_COUNT + 3 + i;
     std::printf("<#%s> a lv2:OutputPort, lv2:ControlPort ;\n", meters[i]);
     std::printf("  lv2:index %u ;\n", index);
     std::printf("  lv2:symbol \"%s\" ;\n", meters[i]);
@@ -170,7 +174,7 @@ int main() {
     std::printf("  lv2:default -120 ;\n");
     std::printf("  units:unit units:db .\n\n");
   }
-  const uint32_t latencyIndex = 4 + vocal::P_COUNT + 13;
+  const uint32_t latencyIndex = 4 + vocal::P_COUNT + 14;
   std::printf("<#latency> a lv2:OutputPort, lv2:ControlPort ;\n");
   std::printf("  lv2:index %u ;\n", latencyIndex);
   std::printf("  lv2:symbol \"latency\" ;\n");
@@ -180,7 +184,7 @@ int main() {
   std::printf("  lv2:maximum 0 ;\n");
   std::printf("  lv2:default 0 .\n\n");
   std::printf("<#time> a lv2:InputPort, atom:Sequence ;\n");
-  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 14);
+  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 15);
   std::printf("  lv2:symbol \"time\" ;\n");
   std::printf("  lv2:name \"Time\" ;\n");
   std::printf("  lv2:designation time:position ;\n");
