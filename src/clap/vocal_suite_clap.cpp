@@ -762,6 +762,13 @@ clap_process_status pluginProcess(const clap_plugin_t* p, const clap_process_t* 
     applyEvents(s, proc->in_events);
   }
   emitDirty(s, proc->out_events);
+  if (proc->transport &&
+      (proc->transport->flags & CLAP_TRANSPORT_HAS_TEMPO) &&
+      std::isfinite(proc->transport->tempo) && proc->transport->tempo > 1.0) {
+    s->engine.setTempo(static_cast<float>(proc->transport->tempo), true);
+    s->shared.bpm.store(static_cast<float>(proc->transport->tempo),
+                        std::memory_order_relaxed);
+  }
 
   if (proc->audio_inputs_count == 0 || proc->audio_outputs_count == 0) {
     return CLAP_PROCESS_CONTINUE;

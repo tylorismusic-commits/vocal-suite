@@ -6,6 +6,9 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
 @prefix pset: <http://lv2plug.in/ns/ext/presets#> .
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix time: <http://lv2plug.in/ns/ext/time#> .
+@prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .
 
 
 # ---- presets ----

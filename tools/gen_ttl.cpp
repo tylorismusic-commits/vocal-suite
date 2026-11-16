@@ -90,7 +90,10 @@ int main() {
   std::printf("@prefix doap: <http://usefulinc.com/ns/doap#> .\n");
   std::printf("@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n");
   std::printf("@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .\n");
-  std::printf("@prefix pset: <http://lv2plug.in/ns/ext/presets#> .\n\n");
+  std::printf("@prefix pset: <http://lv2plug.in/ns/ext/presets#> .\n");
+  std::printf("@prefix atom: <http://lv2plug.in/ns/ext/atom#> .\n");
+  std::printf("@prefix time: <http://lv2plug.in/ns/ext/time#> .\n");
+  std::printf("@prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .\n\n");
 
   // manifest.ttl
   std::printf("<%s>\n", kUri);
@@ -121,7 +124,7 @@ int main() {
   std::printf("    <#comp_gr> , <#sib_gr> , <#harsh_gr> , <#lim_gr> ,\n");
   std::printf("    <#in_l> , <#in_r> , <#out_l> , <#out_r> ,\n");
   std::printf("    <#input_learn_peak> , <#sib_learn_hz> , <#sib_learn_valid> ,\n");
-  std::printf("    <#latency> ;\n");
+  std::printf("    <#latency> , <#time> ;\n");
   std::printf("  ui:ui <#ui> .\n\n");
 
   std::printf("<#ui> a ui:X11UI ;\n");
@@ -174,7 +177,13 @@ int main() {
   std::printf("  lv2:designation lv2:latency ;\n");
   std::printf("  lv2:minimum 0 ;\n");
   std::printf("  lv2:maximum 0 ;\n");
-  std::printf("  lv2:default 0 .\n");
+  std::printf("  lv2:default 0 .\n\n");
+  std::printf("<#time> a lv2:InputPort, atom:Sequence ;\n");
+  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 14);
+  std::printf("  lv2:symbol \"time\" ;\n");
+  std::printf("  lv2:name \"Time\" ;\n");
+  std::printf("  lv2:designation time:position ;\n");
+  std::printf("  atom:supports time:Position .\n");
 
   // presets
   std::printf("\n# ---- presets ----\n");

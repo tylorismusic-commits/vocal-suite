@@ -4,7 +4,11 @@
 // Eight-stage vocal strip.  Control ports mirror the CLAP parameter ids:
 // port = PORT_FIRST_PARAM + ParamId.  Two extra controls after the parameters
 // are one-shot learn triggers from the UI.
+#include <lv2/atom/atom.h>
+#include <lv2/atom/util.h>
 #include <lv2/core/lv2.h>
+#include <lv2/time/time.h>
+#include <lv2/urid/urid.h>
 
 #include <cmath>
 #include <cstdlib>
@@ -40,6 +44,7 @@ enum Port : uint32_t {
   PORT_SIB_LEARN_HZ,
   PORT_SIB_LEARN_VALID,
   PORT_LATENCY,
+  PORT_TIME,
   PORT_COUNT
 };
 
@@ -50,6 +55,12 @@ struct Plugin {
   vocal::Shared shared;
   vocal::Engine engine;
   vocal::Meters meters;
+
+  const LV2_URID_Map* map = nullptr;
+  uint32_t uridPosition = 0;
+  uint32_t uridBpm = 0;
+  uint32_t uridFloat = 0;
+  const LV2_Atom_Sequence* timePort = nullptr;
 
   std::unique_ptr<float*[]> ports;
 
@@ -85,11 +96,18 @@ LV2_Handle instantiate(const LV2_Descriptor*, double rate, const char*,
   p->engine.setControls(vocal::controlsFrom(p->shared));
 
   for (const LV2_Feature* const* f = features; f && *f; ++f) {
-    if (!std::strcmp((*f)->URI, vocal::kInlineDisplayQueueDrawURI) &&
-        (*f)->data) {
+    if (!std::strcmp((*f)->URI, LV2_URID__map)) {
+      p->map = static_cast<const LV2_URID_Map*>(f[0]->data);
+    } else if (!std::strcmp((*f)->URI, vocal::kInlineDisplayQueueDrawURI) &&
+               (*f)->data) {
       p->queueDraw = static_cast<const vocal::InlineDisplayQueueDraw*>(
           static_cast<const void*>((*f)->data));
     }
+  }
+  if (p->map && p->map->map) {
+    p->uridPosition = p->map->map(p->map->handle, LV2_TIME__Position);
+    p->uridBpm = p->map->map(p->map->handle, LV2_TIME__beatsPerMinute);
+    p->uridFloat = p->map->map(p->map->handle, LV2_ATOM__Float);
   }
   return p;
 }
@@ -119,6 +137,9 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
       p->sibLearnValid = static_cast<float*>(data);
       break;
     case PORT_LATENCY: p->latency = static_cast<float*>(data); break;
+    case PORT_TIME:
+      p->timePort = static_cast<const LV2_Atom_Sequence*>(data);
+      break;
     default:
       if (!p->ports) {
         p->ports = std::make_unique<float*[]>(PORT_COUNT);
@@ -128,6 +149,32 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
         p->ports[port] = static_cast<float*>(data);
       }
       break;
+  }
+}
+
+void updateTempo(Plugin* p) {
+  if (!p->timePort || !p->uridPosition || !p->uridBpm) {
+    return;
+  }
+  auto* seq = const_cast<LV2_Atom_Sequence*>(p->timePort);
+  LV2_ATOM_SEQUENCE_FOREACH(seq, ev) {
+    if (ev->body.type != p->uridPosition) {
+      continue;
+    }
+    const auto* obj = reinterpret_cast<const LV2_Atom_Object*>(&ev->body);
+    const LV2_Atom* bpmAtom = nullptr;
+    LV2_Atom_Object_Query query[] = {
+        {p->uridBpm, &bpmAtom},
+        LV2_ATOM_OBJECT_QUERY_END,
+    };
+    lv2_atom_object_query(obj, query);
+    if (bpmAtom && bpmAtom->type == p->uridFloat &&
+        bpmAtom->size == sizeof(float)) {
+      const float bpm = reinterpret_cast<const LV2_Atom_Float*>(bpmAtom)->body;
+      if (std::isfinite(bpm) && bpm > 1.0f) {
+        p->engine.setTempo(bpm, true);
+      }
+    }
   }
 }
 
@@ -174,6 +221,7 @@ void run(LV2_Handle handle, uint32_t frames) {
     p->shared.sibLearnActive.store(*p->learnSib > 0.5f,
                                    std::memory_order_relaxed);
   }
+  updateTempo(p);
   p->engine.setControls(vocal::controlsFrom(p->shared));
 
   if (p->audioOutL != p->audioInL) {

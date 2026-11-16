@@ -152,6 +152,10 @@ public:
         drive_.process(l, r);
       }
 
+      // Analyse the de-ess input, not the output: the learn action must see
+      // the sibilance before the dynamic cut removes it.
+      analyzer_.push(&l, &r, 1);
+
       float sibGr = 0.0f;
       float harshGr = 0.0f;
       if (controls_.deessOn) {
@@ -177,7 +181,6 @@ public:
       }
     }
 
-    analyzer_.push(left, right, frames);
     if (controls_.sibLearnActive) {
       const float* bins = analyzer_.bins();
       float bestDb = -120.0f;

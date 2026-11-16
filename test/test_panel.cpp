@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 
 #include "presets.hpp"
 #include "ui/panel.hpp"
@@ -51,6 +52,22 @@ int main() {
   }
   assert(!state.inputLearning);
   assert(shared.get(P_INPUT) > 7.0);
+
+  // Preset filters and the filtered list apply a matching preset.
+  state.presetOpen = 1;
+  state.filterStyle = 0;  // Rock / Metal
+  state.filterVoice = -1;
+  state.filterIntensity = -1;
+  cairo_surface_t* filterSurface =
+      cairo_image_surface_create(CAIRO_FORMAT_ARGB32, kPanelWidth, kPanelHeight);
+  cairo_t* filterCr = cairo_create(filterSurface);
+  panel.draw(filterCr, shared, state);  // rebuilds the list geometry
+  cairo_destroy(filterCr);
+  cairo_surface_destroy(filterSurface);
+  panel.pointerDown(shared, state, 200, 164, false);
+  assert(state.presetIndex >= 0);
+  assert(std::strcmp(factoryPresets()[state.presetIndex].category,
+                     "Rock / Metal") == 0);
 
   // A chain tab click changes the page.
   state.tab = 0;
