@@ -547,7 +547,7 @@ void Panel::pageEcho() {
   lofi.y = 158;
   lofi.w = 80;
   lofi.h = 26;
-  lofi.label = "LOFI";
+  lofi.label = "LO-FI";
   widgets_.push_back(lofi);
 
   for (int i = 0; i < 10; ++i) {

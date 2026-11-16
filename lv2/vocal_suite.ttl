@@ -411,7 +411,7 @@
 <#sib_freq> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 33 ;
   lv2:symbol "sib_freq" ;
-  lv2:name "Sibilance" ;
+  lv2:name "Sibilance Freq" ;
   lv2:default 6500 ;
   lv2:minimum 4000 ;
   lv2:maximum 10000 ;
@@ -421,7 +421,7 @@
 <#sib_amount> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 34 ;
   lv2:symbol "sib_amount" ;
-  lv2:name "Sib Amount" ;
+  lv2:name "Sibilance Amount" ;
   lv2:default 2 ;
   lv2:minimum 0 ;
   lv2:maximum 10 ;
@@ -430,7 +430,7 @@
 <#harsh_freq> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 35 ;
   lv2:symbol "harsh_freq" ;
-  lv2:name "Harshness" ;
+  lv2:name "Harshness Freq" ;
   lv2:default 3000 ;
   lv2:minimum 1500 ;
   lv2:maximum 5000 ;
@@ -440,7 +440,7 @@
 <#harsh_amount> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 36 ;
   lv2:symbol "harsh_amount" ;
-  lv2:name "Harsh Amount" ;
+  lv2:name "Harshness Amount" ;
   lv2:default 1 ;
   lv2:minimum 0 ;
   lv2:maximum 10 ;
@@ -551,7 +551,7 @@
 <#echo_lofi> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 46 ;
   lv2:symbol "echo_lofi" ;
-  lv2:name "LoFi" ;
+  lv2:name "Lo-Fi" ;
   lv2:default 0 ;
   lv2:minimum 0 ;
   lv2:maximum 1 ;
@@ -626,7 +626,7 @@
 <#space_predelay> a lv2:InputPort, lv2:ControlPort ;
   lv2:index 53 ;
   lv2:symbol "space_predelay" ;
-  lv2:name "Pre-delay" ;
+  lv2:name "Pre-Delay" ;
   lv2:default 25 ;
   lv2:minimum 0 ;
   lv2:maximum 150 ;
