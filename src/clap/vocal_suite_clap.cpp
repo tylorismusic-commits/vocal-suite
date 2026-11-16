@@ -592,8 +592,8 @@ const clap_plugin_state_t kStateExt = {stateSave, stateLoad};
 
 // --- Audio ports ------------------------------------------------------------
 
-uint32_t audioPortsCount(const clap_plugin_t*, bool isInput) {
-  return isInput ? 2 : 1;
+uint32_t audioPortsCount(const clap_plugin_t*, bool /*isInput*/) {
+  return 1;
 }
 
 bool audioPortsInfo(const clap_plugin_t*, uint32_t index, bool isInput,
@@ -604,18 +604,12 @@ bool audioPortsInfo(const clap_plugin_t*, uint32_t index, bool isInput,
   info->in_place_pair = CLAP_INVALID_ID;
 
   if (isInput) {
-    if (index > 1) {
+    if (index != 0) {
       return false;
     }
-    if (index == 0) {
-      info->id = 0;
-      writeName(info->name, sizeof(info->name), "Input");
-      info->flags = CLAP_AUDIO_PORT_IS_MAIN;
-    } else {
-      info->id = 2;
-      writeName(info->name, sizeof(info->name), "Sidechain");
-      info->flags = 0;
-    }
+    info->id = 0;
+    writeName(info->name, sizeof(info->name), "Input");
+    info->flags = CLAP_AUDIO_PORT_IS_MAIN;
     return true;
   }
   if (index != 0) {

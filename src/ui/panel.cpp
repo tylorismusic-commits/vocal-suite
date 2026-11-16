@@ -1097,10 +1097,10 @@ void Panel::drawRightRail(cairo_t* cr, const Shared& shared,
   drawMeter(cr, 908, 156, 38, 110, shared.inPeakLDb.load(),
             shared.inPeakRDb.load(), "IN");
   {
-    const double y0 = 156 + 4 + (110 - 8) * (1.0 - (60.0 - 18.0) / 60.0);
-    const double y1 = 156 + 4 + (110 - 8) * (1.0 - (60.0 - 12.0) / 60.0);
+    const double yTop = 156 + 4 + (110 - 8) * (1.0 - (60.0 - 12.0) / 60.0);
+    const double yBot = 156 + 4 + (110 - 8) * (1.0 - (60.0 - 18.0) / 60.0);
     setRgb(cr, kGreen, 0.18);
-    cairo_rectangle(cr, 908, y0, 38, y1 - y0);
+    cairo_rectangle(cr, 908, yTop, 38, yBot - yTop);
     cairo_fill(cr);
   }
   drawMeter(cr, 956, 156, 38, 110, shared.outPeakLDb.load(),

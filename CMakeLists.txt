@@ -202,3 +202,7 @@ else()
   add_test(NAME vocal_lv2_ui_host
     COMMAND vocal_lv2_ui_host_test "${LV2_BUNDLE_DIR}/vocal_suite_ui.so")
 endif()
+
+add_executable(vocal_ttl_gen tools/gen_ttl.cpp)
+target_include_directories(vocal_ttl_gen PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_compile_features(vocal_ttl_gen PRIVATE cxx_std_17)
