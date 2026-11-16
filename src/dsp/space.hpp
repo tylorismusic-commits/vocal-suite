@@ -37,8 +37,13 @@ public:
       apR_[i].prepare(static_cast<int>(sr_ * apMs[i] * 0.001f) + 1);
     }
     mix_.setTime(25.0f, sr_);
-    decaySmooth_.setTime(40.0f, sr_);
+    widthS_.setTime(30.0f, sr_);
+    duckS_.setTime(30.0f, sr_);
+    preS_.setTime(30.0f, sr_);
     mix_.reset(0.0f);
+    widthS_.reset(0.7f);
+    duckS_.reset(0.4f);
+    preS_.reset(0.0f);
     modPhase_ = 0.0f;
     modInc_ = 2.0f * kPi * 0.13f / sr_;
     duckEnv_ = 0.0f;
@@ -64,6 +69,9 @@ public:
       const float ms = base[i] * size + offset;
       len_[i] = clampf(ms * 0.001f * sr_, 16.0f,
                        static_cast<float>(maxSamples_ - 3));
+      if (lenCur_[i] <= 0.0f) {
+        lenCur_[i] = len_[i];
+      }
       const float lenSec = len_[i] / sr_;
       float g = std::pow(10.0f, -3.0f * lenSec / rt60);
       g = clampf(g, 0.15f, 0.985f);
@@ -78,10 +86,10 @@ public:
     const float dampHz = 2000.0f * std::pow(8.0f, tone);
     dampG_ = 1.0f - std::exp(-2.0f * kPi * clampf(dampHz, 300.0f, sr_ * 0.45f) /
                              sr_);
-    preSamples_ = clampf(c.spacePreDelay * 0.001f * sr_, 0.0f,
-                         static_cast<float>(preSize_ - 2));
-    width_ = clampf(c.spaceWidth / 100.0f, 0.0f, 1.0f);
-    duck_ = clampf(c.spaceDuck / 100.0f, 0.0f, 1.0f);
+    preS_.setTarget(clampf(c.spacePreDelay * 0.001f * sr_, 0.0f,
+                           static_cast<float>(preSize_ - 2)));
+    widthS_.setTarget(clampf(c.spaceWidth / 100.0f, 0.0f, 1.0f));
+    duckS_.setTarget(clampf(c.spaceDuck / 100.0f, 0.0f, 1.0f));
     mix_.setTarget(clampf(c.spaceMix / 100.0f, 0.0f, 1.0f));
     diffusion_ = mode_ == 1 ? 0.35f : (mode_ == 2 ? 0.6f : 0.5f);
   }
@@ -100,7 +108,8 @@ public:
     // Pre-delay.
     preL_[preWrite_] = dryL;
     preR_[preWrite_] = dryR;
-    int read = preWrite_ - static_cast<int>(std::lround(preSamples_));
+    const float preSamples = preS_.next();
+    int read = preWrite_ - static_cast<int>(std::lround(preSamples));
     if (read < 0) {
       read += preSize_;
     }
@@ -115,9 +124,11 @@ public:
 
     float dL[8], dR[8];
     for (int i = 0; i < 8; ++i) {
+      lenCur_[i] += (len_[i] - lenCur_[i]) * 0.0008f;
       const float mod =
           0.0007f * sr_ * std::sin(modPhase_ + static_cast<float>(i) * 0.7f);
-      const float len = clampf(len_[i] + mod, 4.0f, static_cast<float>(maxSamples_ - 3));
+      const float len = clampf(lenCur_[i] + mod, 4.0f,
+                               static_cast<float>(maxSamples_ - 3));
       dL[i] = lineL_[i].read(len);
       dR[i] = lineR_[i].read(len);
       dampL_[i] += (dL[i] - dampL_[i]) * dampG_;
@@ -149,12 +160,14 @@ public:
       wetR += dR[i] * ((i & 2) ? -0.18f : 0.18f);
     }
     // Width: 0 = mono, 1 = normal stereo.
+    const float width = widthS_.next();
     const float mid = 0.5f * (wetL + wetR);
-    const float side = 0.5f * (wetL - wetR) * width_;
+    const float side = 0.5f * (wetL - wetR) * width;
     wetL = mid + side;
     wetR = mid - side;
 
-    const float duckGain = 1.0f - duck_ * clampf(duckEnv_ * 8.0f, 0.0f, 1.0f);
+    const float duck = duckS_.next();
+    const float duckGain = 1.0f - duck * clampf(duckEnv_ * 8.0f, 0.0f, 1.0f);
     const float mix = mix_.next() * duckGain;
     l = dryL * (1.0f - mix) + wetL * mix;
     r = dryR * (1.0f - mix) + wetR * mix;
@@ -168,6 +181,7 @@ public:
       lineR_[i].write = 0;
       dampL_[i] = 0.0f;
       dampR_[i] = 0.0f;
+      lenCur_[i] = 0.0f;
     }
     std::fill(preL_.begin(), preL_.end(), 0.0f);
     std::fill(preR_.begin(), preR_.end(), 0.0f);
@@ -250,6 +264,7 @@ private:
   Allpass apL_[4], apR_[4];
   std::vector<float> preL_, preR_;
   float len_[8] = {};
+  float lenCur_[8] = {};
   float fb_[8] = {};
   float dampL_[8] = {};
   float dampR_[8] = {};
@@ -261,6 +276,9 @@ private:
   float modInc_ = 0.0f;
   float duckEnv_ = 0.0f;
   Smoothed mix_;
+  Smoothed widthS_;
+  Smoothed duckS_;
+  Smoothed preS_;
   Smoothed decaySmooth_;
   bool on_ = false;
   int mode_ = 0;
