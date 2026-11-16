@@ -94,7 +94,10 @@ int main() {
   std::printf("@prefix pset: <http://lv2plug.in/ns/ext/presets#> .\n");
   std::printf("@prefix atom: <http://lv2plug.in/ns/ext/atom#> .\n");
   std::printf("@prefix time: <http://lv2plug.in/ns/ext/time#> .\n");
-  std::printf("@prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .\n\n");
+  std::printf("@prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .\n");
+  std::printf("@prefix idpy: <http://harrisonconsoles.com/lv2/inlinedisplay#> .\n\n");
+  std::printf("idpy:interface a lv2:ExtensionData .\n");
+  std::printf("idpy:queue_draw a lv2:Feature .\n\n");
 
   // manifest.ttl
   std::printf("<%s>\n", kUri);
@@ -113,7 +116,8 @@ int main() {
   std::printf("  doap:name \"Vocal Suite\" ;\n");
   std::printf("  doap:license <https://spdx.org/licenses/GPL-3.0-or-later.html> ;\n");
   std::printf("  doap:maintainer [ foaf:name \"tylorismusic\" ] ;\n");
-  std::printf("  lv2:optionalFeature lv2:hardRTCapable ;\n");
+  std::printf("  lv2:optionalFeature lv2:hardRTCapable , idpy:queue_draw ;\n");
+  std::printf("  lv2:extensionData idpy:interface ;\n");
   std::printf("  lv2:port\n");
   std::printf("    <#audio_in_l> , <#audio_in_r> , <#audio_out_l> , <#audio_out_r> ,\n");
   for (uint32_t i = 0; i < vocal::P_COUNT; ++i) {

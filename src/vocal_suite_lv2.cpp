@@ -224,6 +224,9 @@ void run(LV2_Handle handle, uint32_t frames) {
     p->shared.sibLearnActive.store(*p->learnSib > 0.5f,
                                    std::memory_order_relaxed);
   }
+  if (p->compare) {
+    p->shared.compare.store(*p->compare > 0.5f, std::memory_order_relaxed);
+  }
   updateTempo(p);
   p->engine.setControls(vocal::controlsFrom(p->shared));
 

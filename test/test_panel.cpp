@@ -152,7 +152,7 @@ int main() {
 
   state.tab = 7;
   const double limit = shared.get(P_LIMIT_ON);
-  panel.pointerDown(shared, state, 330, 274, false);
+  panel.pointerDown(shared, state, 700, 314, false);
   assert(shared.get(P_LIMIT_ON) != limit);
 
   // Power is a normal toggle.
@@ -179,7 +179,7 @@ int main() {
                      "Rock / Metal") == 0);
   state.presetOpen = 1;
   state.presetScroll = 0;
-  panel.wheel(shared, state, 200, 300, 1.0);
+  panel.wheel(shared, state, 200, 300, -1.0);
   assert(state.presetScroll >= 1);
   state.presetOpen = 0;
 

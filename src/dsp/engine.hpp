@@ -61,6 +61,20 @@ public:
     echo_.setControls(c);
     space_.setControls(c);
     output_.setControls(c);
+    // A bypassed stage is not reducing anything.  Hosts read the GR meter for
+    // automatic compensation and mixing displays, so do not leave a stale
+    // value behind when the stage is off, the plug-in is bypassed, or the
+    // dry monitor is active.
+    if (!c.compOn || !c.power || c.compare) {
+      compGrHold_ = 0.0f;
+    }
+    if (!c.deessOn || !c.power || c.compare) {
+      sibGrHold_ = 0.0f;
+      harshGrHold_ = 0.0f;
+    }
+    if (!c.limitOn || !c.power || c.compare) {
+      limGrHold_ = 0.0f;
+    }
   }
 
   void setTempo(float bpm, bool /*host*/) noexcept {

@@ -9,7 +9,10 @@
 @prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#> .
 @prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix idpy: <http://harrisonconsoles.com/lv2/inlinedisplay#> .
 
+idpy:interface a lv2:ExtensionData .
+idpy:queue_draw a lv2:Feature .
 
 # ---- plugin ----
 @prefix vocal: <https://github.com/tylorismusic-commits/vocal-suite> .
@@ -18,7 +21,8 @@
   doap:name "Vocal Suite" ;
   doap:license <https://spdx.org/licenses/GPL-3.0-or-later.html> ;
   doap:maintainer [ foaf:name "tylorismusic" ] ;
-  lv2:optionalFeature lv2:hardRTCapable ;
+  lv2:optionalFeature lv2:hardRTCapable , idpy:queue_draw ;
+  lv2:extensionData idpy:interface ;
   lv2:port
     <#audio_in_l> , <#audio_in_r> , <#audio_out_l> , <#audio_out_r> ,
     <#power> ,

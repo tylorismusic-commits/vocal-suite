@@ -206,3 +206,15 @@ endif()
 add_executable(vocal_ttl_gen tools/gen_ttl.cpp)
 target_include_directories(vocal_ttl_gen PRIVATE "${CMAKE_SOURCE_DIR}/src")
 target_compile_features(vocal_ttl_gen PRIVATE cxx_std_17)
+
+target_compile_options(vocal_engine_test PRIVATE -UNDEBUG)
+
+target_compile_options(vocal_panel_test PRIVATE -UNDEBUG)
+
+target_compile_options(vocal_clap_host_test PRIVATE -UNDEBUG)
+
+target_compile_options(vocal_lv2_host_test PRIVATE -UNDEBUG)
+
+target_compile_options(vocal_clap_gui_host_test PRIVATE -UNDEBUG)
+
+target_compile_options(vocal_lv2_ui_host_test PRIVATE -UNDEBUG)

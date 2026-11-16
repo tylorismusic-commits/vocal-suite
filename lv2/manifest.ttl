@@ -9,6 +9,10 @@
 @prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix time: <http://lv2plug.in/ns/ext/time#> .
 @prefix pg:   <http://lv2plug.in/ns/ext/port-groups#> .
+@prefix idpy: <http://harrisonconsoles.com/lv2/inlinedisplay#> .
+
+idpy:interface a lv2:ExtensionData .
+idpy:queue_draw a lv2:Feature .
 
 <https://github.com/tylorismusic-commits/vocal-suite>
   a lv2:Plugin, doap:Project ;

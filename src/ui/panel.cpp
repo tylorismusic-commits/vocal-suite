@@ -628,16 +628,16 @@ void Panel::pageOut() {
   Widget fader{};
   fader.kind = Kind::Fader;
   fader.param = P_OUTPUT;
-  fader.x = 130;
-  fader.y = 280;
+  fader.x = 190;
+  fader.y = 220;
   fader.w = 70;
-  fader.h = 250;
+  fader.h = 240;
   widgets_.push_back(fader);
   Widget limit{};
   limit.kind = Kind::Toggle;
   limit.param = P_LIMIT_ON;
-  limit.x = 280;
-  limit.y = 260;
+  limit.x = 650;
+  limit.y = 300;
   limit.w = 100;
   limit.h = 28;
   limit.label = "LIMIT";
@@ -675,17 +675,6 @@ void Panel::draw(cairo_t* cr, Shared& shared, const PanelState& state) {
     drawPresetList(cr, shared, state);
   }
 
-  // Corner screws.
-  for (int i = 0; i < 4; ++i) {
-    const double x = (i & 1) ? 1012.0 : 28.0;
-    const double y = (i & 2) ? 612.0 : 28.0;
-    cairo_arc(cr, x, y, 5.5, 0, 2 * kPiD);
-    setRgb(cr, {0.28, 0.28, 0.28});
-    cairo_fill(cr);
-    cairo_arc(cr, x, y, 3.0, 0, 2 * kPiD);
-    setRgb(cr, {0.09, 0.09, 0.09});
-    cairo_fill(cr);
-  }
 }
 
 void Panel::drawHeader(cairo_t* cr, const Shared& shared,
@@ -914,19 +903,30 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       break;
     default:
       text(cr, "OUTPUT", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
-      drawMeter(cr, 420, 220, 90, 240, shared.inPeakLDb.load(),
+      drawMeter(cr, 330, 220, 90, 240, shared.inPeakLDb.load(),
                 shared.inPeakRDb.load(), "INPUT");
-      drawMeter(cr, 540, 220, 90, 240, shared.outPeakLDb.load(),
+      drawMeter(cr, 460, 220, 90, 240, shared.outPeakLDb.load(),
                 shared.outPeakRDb.load(), "OUTPUT");
       {
         const char* dbLabels[6] = {"0", "-12", "-24", "-36", "-48", "-60"};
         for (int i = 0; i < 6; ++i) {
           const double yy = 224 + (240 - 8) * i / 5.0;
-          text(cr, dbLabels[i], 515, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
-          text(cr, dbLabels[i], 635, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
+          text(cr, dbLabels[i], 425, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
+          text(cr, dbLabels[i], 555, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
         }
       }
-      drawGrBar(cr, 700, 260, 26, 140, shared.limGrDb.load(), 18.0, "LIMIT");
+      {
+        const char* outLabels[3] = {"+18", "0", "-18"};
+        for (int i = 0; i < 3; ++i) {
+          const double yy = 220 + 240 * i / 2.0;
+          text(cr, outLabels[i], 270, yy + 3, 7.5, 0, kDim.r, kDim.g, kDim.b);
+          setRgb(cr, kDim, 0.25);
+          cairo_move_to(cr, 250, yy);
+          cairo_line_to(cr, 266, yy);
+          cairo_stroke(cr);
+        }
+      }
+      drawGrBar(cr, 590, 260, 26, 140, shared.limGrDb.load(), 18.0, "LIMIT");
       text(cr, "The limiter is a safety catch, not a mastering limiter.",
            60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
@@ -990,7 +990,7 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w,
       text(cr, "OUTPUT", w.x + w.w * 0.5, w.y - 12, 10, 1, kText.r, kText.g,
            kText.b);
       text(cr, formatValue(spec, shared.get(w.param)).c_str(),
-           w.x + w.w * 0.5, w.y + w.h + 18, 10, 1, kAccent.r, kAccent.g,
+           w.x + w.w * 0.5, w.y + w.h + 13, 10, 1, kAccent.r, kAccent.g,
            kAccent.b);
       break;
     }
