@@ -167,3 +167,38 @@ if(LILV_FOUND)
   add_test(NAME vocal_lv2_host
     COMMAND vocal_lv2_host_test "${LV2_BUNDLE_DIR}")
 endif()
+
+find_program(XVFB_RUN xvfb-run)
+add_executable(vocal_clap_gui_host_test test/clap_gui_host_test.cpp)
+target_include_directories(vocal_clap_gui_host_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/third_party/clap/include")
+target_link_libraries(vocal_clap_gui_host_test PRIVATE
+  PkgConfig::X11 ${CMAKE_DL_LIBS})
+target_compile_features(vocal_clap_gui_host_test PRIVATE cxx_std_17)
+add_dependencies(vocal_clap_gui_host_test vocal_suite_bundle)
+if(XVFB_RUN)
+  add_test(NAME vocal_clap_gui_host
+    COMMAND "${XVFB_RUN}" -a -s "-screen 0 1600x1000x24"
+      "$<TARGET_FILE:vocal_clap_gui_host_test>"
+      "${CMAKE_BINARY_DIR}/clap/VocalSuite.clap")
+else()
+  add_test(NAME vocal_clap_gui_host
+    COMMAND vocal_clap_gui_host_test "${CMAKE_BINARY_DIR}/clap/VocalSuite.clap")
+endif()
+
+add_executable(vocal_lv2_ui_host_test test/lv2_ui_host_test.cpp)
+target_include_directories(vocal_lv2_ui_host_test PRIVATE
+  ${PKG_CONFIG_LV2_INCLUDE_DIRS})
+target_link_libraries(vocal_lv2_ui_host_test PRIVATE
+  PkgConfig::X11 ${CMAKE_DL_LIBS})
+target_compile_features(vocal_lv2_ui_host_test PRIVATE cxx_std_17)
+add_dependencies(vocal_lv2_ui_host_test vocal_suite_lv2_bundle)
+if(XVFB_RUN)
+  add_test(NAME vocal_lv2_ui_host
+    COMMAND "${XVFB_RUN}" -a -s "-screen 0 1600x1000x24"
+      "$<TARGET_FILE:vocal_lv2_ui_host_test>"
+      "${LV2_BUNDLE_DIR}/vocal_suite_ui.so")
+else()
+  add_test(NAME vocal_lv2_ui_host
+    COMMAND vocal_lv2_ui_host_test "${LV2_BUNDLE_DIR}/vocal_suite_ui.so")
+endif()
