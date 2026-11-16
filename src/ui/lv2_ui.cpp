@@ -325,6 +325,15 @@ LV2UI_Handle uiInstantiate(const LV2UI_Descriptor*, const char* /*pluginUri*/,
 
 void uiCleanup(LV2UI_Handle handle) {
   auto* ui = static_cast<Ui*>(handle);
+  if (ui && ui->write) {
+    const float zero = 0.0f;
+    ui->write(ui->controller, kFirstParam + vocal::P_COUNT, sizeof(float), 0,
+              &zero);
+    ui->write(ui->controller, kFirstParam + vocal::P_COUNT + 1, sizeof(float),
+              0, &zero);
+    ui->write(ui->controller, kFirstParam + vocal::P_COUNT + 2, sizeof(float),
+              0, &zero);
+  }
   if (ui->cr) {
     cairo_destroy(ui->cr);
   }

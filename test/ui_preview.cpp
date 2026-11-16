@@ -19,6 +19,9 @@ int main(int argc, char** argv) {
   state.tab = tab;
   state.presetOpen = argc > 3 ? 1 : 0;
   panel.applyPreset(shared, state, 0);
+  if (argc > 4) {
+    shared.compare.store(true, std::memory_order_relaxed);
+  }
 
   cairo_surface_t* surface =
       cairo_image_surface_create(CAIRO_FORMAT_ARGB32, kPanelWidth, kPanelHeight);

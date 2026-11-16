@@ -120,6 +120,10 @@ public:
     if (thread_.joinable()) {
       thread_.join();
     }
+    // Compare mode and learn actions must never outlive the editor.
+    shared_.compare.store(false, std::memory_order_relaxed);
+    shared_.inputLearnActive.store(false, std::memory_order_relaxed);
+    shared_.sibLearnActive.store(false, std::memory_order_relaxed);
     std::lock_guard<std::mutex> lock(mutex_);
     opened_ = false;
   }
