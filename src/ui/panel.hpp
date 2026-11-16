@@ -68,6 +68,7 @@ public:
 private:
   enum class Kind {
     Knob,
+    Power,
     Toggle,
     Choice,
     PageTab,

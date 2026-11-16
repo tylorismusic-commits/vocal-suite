@@ -45,7 +45,7 @@ constexpr uint32_t kLearnLevelButton = P_COUNT + 1;
 constexpr uint32_t kLearnSibButton = P_COUNT + 2;
 
 const char* const kPageNames[8] = {"INPUT", "COMP", "TONE", "DRIVE",
-                                   "DE-ESS", "ECHO", "SPACE", "OUT"};
+                                   "DE-ESS", "ECHO", "SPACE", "OUTPUT"};
 const uint32_t kPageOnParam[8] = {P_HPF_ON,   P_COMP_ON, P_TONE_ON,
                                   P_DRIVE_ON, P_DEESS_ON, P_ECHO_ON,
                                   P_SPACE_ON, P_LIMIT_ON};
@@ -223,12 +223,13 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
   widgets_.clear();
 
   Widget power{};
-  power.kind = Kind::Toggle;
+  power.kind = Kind::Power;
   power.param = P_POWER;
-  power.x = 24;
-  power.y = 14;
+  power.x = 26;
+  power.y = 16;
   power.w = 36;
   power.h = 36;
+  power.r = 14;
   power.label = "";
   widgets_.push_back(power);
 
@@ -263,7 +264,7 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
     on.y = 144;
     on.w = 96;
     on.h = 26;
-    on.label = tab == 0 ? "HPF" : "ON";
+    on.label = tab == 0 ? "HPF ON" : "ON";
     widgets_.push_back(on);
   }
 
@@ -492,6 +493,7 @@ void Panel::pageDeEss() {
   sf.x = 160;
   sf.y = 300;
   sf.r = 46;
+  sf.label = "Freq";
   widgets_.push_back(sf);
   Widget sa{};
   sa.kind = Kind::Knob;
@@ -499,6 +501,7 @@ void Panel::pageDeEss() {
   sa.x = 320;
   sa.y = 300;
   sa.r = 46;
+  sa.label = "Amount";
   widgets_.push_back(sa);
   Widget hf{};
   hf.kind = Kind::Knob;
@@ -506,6 +509,7 @@ void Panel::pageDeEss() {
   hf.x = 550;
   hf.y = 300;
   hf.r = 46;
+  hf.label = "Freq";
   widgets_.push_back(hf);
   Widget ha{};
   ha.kind = Kind::Knob;
@@ -513,6 +517,7 @@ void Panel::pageDeEss() {
   ha.x = 710;
   ha.y = 300;
   ha.r = 46;
+  ha.label = "Amount";
   widgets_.push_back(ha);
   Widget learn{};
   learn.kind = Kind::Button;
@@ -579,9 +584,9 @@ void Panel::pageEcho() {
   Widget tempo{};
   tempo.kind = Kind::Knob;
   tempo.param = P_TEMPO;
-  tempo.x = 810;
-  tempo.y = 300;
-  tempo.r = 24;
+  tempo.x = 820;
+  tempo.y = 258;
+  tempo.r = 18;
   widgets_.push_back(tempo);
 }
 
@@ -606,7 +611,7 @@ void Panel::pageSpace() {
     k.kind = Kind::Knob;
     k.param = params[i];
     k.x = 110 + i * 125;
-    k.y = 350;
+    k.y = 340;
     k.r = 38;
     widgets_.push_back(k);
   }
@@ -690,18 +695,33 @@ void Panel::drawHeader(cairo_t* cr, const Shared& shared,
   cairo_fill(cr);
 
   for (const Widget& w : widgets_) {
-    if (w.kind == Kind::Toggle && w.param == P_POWER) {
-      const bool on = shared.get(P_POWER) > 0.5;
-      cairo_arc(cr, w.x + w.w * 0.5, w.y + w.h * 0.5, 13, 0, 2 * kPiD);
-      setRgb(cr, on ? kAccent : Rgb{0.20, 0.20, 0.21});
-      cairo_fill(cr);
-      text(cr, on ? "ON" : "OFF", w.x + w.w * 0.5, w.y + 23, 9, 1,
-           on ? 0.10 : 0.65, on ? 0.08 : 0.65, on ? 0.05 : 0.65);
+    if (w.kind != Kind::Power) {
+      continue;
     }
+    const bool on = shared.get(P_POWER) > 0.5;
+    const double cx = w.x + w.w * 0.5;
+    const double cy = w.y + w.h * 0.5;
+    const double r = w.r;
+    cairo_arc(cr, cx, cy, r, 0, 2 * kPiD);
+    setRgb(cr, {0.12, 0.12, 0.12});
+    cairo_fill(cr);
+    cairo_arc(cr, cx, cy, r - 1.5, 0, 2 * kPiD);
+    setRgb(cr, on ? kGreen : Rgb{0.42, 0.42, 0.42});
+    cairo_set_line_width(cr, 2.2);
+    cairo_new_path(cr);
+    cairo_arc(cr, cx, cy, 7.0, -kPiD / 2 + 0.6,
+              -kPiD / 2 + 2 * kPiD - 0.6);
+    cairo_stroke(cr);
+    cairo_move_to(cr, cx, cy - 9.0);
+    cairo_line_to(cr, cx, cy - 1.0);
+    cairo_stroke(cr);
   }
 
   text(cr, "VOCAL SUITE", 520, 40, 22, 1, kText.r, kText.g, kText.b);
   text(cr, "SERIES", 520, 53, 8, 1, kDim.r, kDim.g, kDim.b);
+  setRgb(cr, kAccent, 0.65);
+  cairo_rectangle(cr, 448, 45, 144, 1.4);
+  cairo_fill(cr);
 
   drawPresetBar(cr, shared, state);
 }
@@ -750,6 +770,9 @@ void Panel::drawChain(cairo_t* cr, const Shared& shared,
   setRgb(cr, {0.095, 0.100, 0.108});
   roundRect(cr, 16, 60, kPanelWidth - 32, 66, 6);
   cairo_fill(cr);
+  setRgb(cr, {1, 1, 1}, 0.035);
+  cairo_rectangle(cr, 24, 61, kPanelWidth - 48, 1);
+  cairo_fill(cr);
 
   for (const Widget& w : widgets_) {
     if (w.kind != Kind::PageTab) {
@@ -777,6 +800,11 @@ void Panel::drawPageTab(cairo_t* cr, const Widget& w, bool active,
   cairo_arc(cr, w.x + 12, w.y + 13, 3.5, 0, 2 * kPiD);
   setRgb(cr, moduleOn ? kGreen : Rgb{0.28, 0.29, 0.30});
   cairo_fill(cr);
+  if (active) {
+    setRgb(cr, kAccent, 0.9);
+    cairo_rectangle(cr, w.x + 12, w.y + w.h - 3, w.w - 24, 2);
+    cairo_fill(cr);
+  }
 
   text(cr, w.label, w.x + w.w * 0.5, w.y + 34, 11, 1,
        active ? kText.r : 0.72, active ? kText.g : 0.71,
@@ -788,6 +816,9 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
   setRgb(cr, {0.105, 0.110, 0.118});
   roundRect(cr, 20, 136, 868, 456, 6);
   cairo_fill(cr);
+  setRgb(cr, {1, 1, 1}, 0.035);
+  cairo_rectangle(cr, 28, 137, 852, 1);
+  cairo_fill(cr);
   setRgb(cr, kEdge);
   cairo_set_line_width(cr, 1);
   roundRect(cr, 20.5, 136.5, 867, 455, 6);
@@ -796,6 +827,22 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
   switch (state.tab) {
     case 0:
       text(cr, "GAIN STAGING", 60, 170, 11, 0, kDim.r, kDim.g, kDim.b);
+      {
+        const double mx = 790, my = 220, mw = 58, mh = 250;
+        drawMeter(cr, mx, my, mw, mh, shared.inPeakLDb.load(),
+                  shared.inPeakRDb.load(), "INPUT");
+        const double yTop = my + 4 + (mh - 8) * (1.0 - (60.0 - 12.0) / 60.0);
+        const double yBot = my + 4 + (mh - 8) * (1.0 - (60.0 - 18.0) / 60.0);
+        setRgb(cr, kGreen, 0.16);
+        cairo_rectangle(cr, mx + 2, yTop, mw - 4, yBot - yTop);
+        cairo_fill(cr);
+        const char* dbLabels[6] = {"0", "-12", "-24", "-36", "-48", "-60"};
+        for (int i = 0; i < 6; ++i) {
+          const double yy = my + 4 + (mh - 8) * i / 5.0;
+          text(cr, dbLabels[i], mx + mw + 7, yy + 3, 7.5, 0, kDim.r, kDim.g,
+               kDim.b);
+        }
+      }
       text(cr, "Set the loudest phrase inside the green zone, then cut rumble with the HPF.",
            60, 560, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
@@ -819,6 +866,8 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       break;
     case 4:
       text(cr, "DE-ESS", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
+      text(cr, "SIBILANCE", 240, 230, 9, 1, kDim.r, kDim.g, kDim.b);
+      text(cr, "HARSHNESS", 630, 230, 9, 1, kDim.r, kDim.g, kDim.b);
       drawGrBar(cr, 790, 240, 22, 110, shared.sibGrDb.load(), 18.0, "SIB");
       drawGrBar(cr, 822, 240, 22, 110, shared.harshGrDb.load(), 18.0, "HRS");
       text(cr, "Start with amount 2-4. Raise until the S's stop poking out.",
@@ -858,7 +907,7 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
         cairo_stroke(cr);
         char buf[64];
         std::snprintf(buf, sizeof(buf), "RT60 %.1f s", decay);
-        text(cr, buf, gx + 12, gy + 18, 9, 0, kDim.r, kDim.g, kDim.b);
+        text(cr, buf, gx + gw - 12, gy + 18, 9, 2, kDim.r, kDim.g, kDim.b);
       }
       text(cr, "Plate is bright and dense, Room is tight, Hall is long.",
            60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
@@ -950,39 +999,30 @@ void Panel::drawKnob(cairo_t* cr, const Widget& w, double value,
   const double f = clamp01((value - spec.min) / (spec.max - spec.min));
 
   // Label and value.
-  text(cr, spec.name, cx, cy - r - 16, 10, 1, kText.r, kText.g, kText.b);
+  const char* name = (w.label && w.label[0]) ? w.label : spec.name;
+  text(cr, name, cx, cy - r - 16, 10, 1, kText.r, kText.g, kText.b);
   text(cr, formatValue(spec, value).c_str(), cx, cy + r + 16, 9, 1,
        kAccent.r, kAccent.g, kAccent.b);
 
-  // Recommended arc.
-  if (spec.recMax > spec.recMin && !spec.stepped) {
-    const double rf0 = clamp01((spec.recMin - spec.min) / (spec.max - spec.min));
-    const double rf1 = clamp01((spec.recMax - spec.min) / (spec.max - spec.min));
-    cairo_set_line_width(cr, 4);
-    setRgb(cr, kAccent, 0.28);
-    cairo_arc(cr, cx, cy, r - 5, knobAngle(rf0), knobAngle(rf1));
-    cairo_stroke(cr);
+  // Ticks sit outside the cap.  Small knobs keep only the arcs so their
+  // labels stay clean.
+  if (r >= 26.0) {
+    setRgb(cr, kDim, 0.50);
+    cairo_set_line_width(cr, 1);
+    for (int i = 0; i <= 10; ++i) {
+      const double a = knobAngle(i / 10.0);
+      const double r0 = r + 7;
+      const double r1 = r + (i % 5 == 0 ? 13 : 10);
+      cairo_move_to(cr, cx + std::cos(a) * r0, cy + std::sin(a) * r0);
+      cairo_line_to(cr, cx + std::cos(a) * r1, cy + std::sin(a) * r1);
+      cairo_stroke(cr);
+    }
   }
 
-  // Value arc.
-  cairo_set_line_width(cr, 2.5);
-  setRgb(cr, kAccent, 0.95);
-  cairo_arc(cr, cx, cy, r - 2, knobAngle(0.0), knobAngle(f));
-  cairo_stroke(cr);
-
-  // Ticks.
-  setRgb(cr, kDim, 0.55);
-  cairo_set_line_width(cr, 1);
-  for (int i = 0; i <= 10; ++i) {
-    const double a = knobAngle(i / 10.0);
-    const double r0 = r + 3;
-    const double r1 = r + (i % 5 == 0 ? 8 : 5);
-    cairo_move_to(cr, cx + std::cos(a) * r0, cy + std::sin(a) * r0);
-    cairo_line_to(cr, cx + std::cos(a) * r1, cy + std::sin(a) * r1);
-    cairo_stroke(cr);
-  }
-
-  // Skirt and cap.
+  // Skirt and cap, with a soft shadow.
+  cairo_arc(cr, cx + 1.5, cy + 2.0, r + 1, 0, 2 * kPiD);
+  setRgb(cr, {0.0, 0.0, 0.0}, 0.35);
+  cairo_fill(cr);
   cairo_arc(cr, cx, cy, r, 0, 2 * kPiD);
   setRgb(cr, {0.075, 0.078, 0.082});
   cairo_fill(cr);
@@ -995,6 +1035,20 @@ void Panel::drawKnob(cairo_t* cr, const Widget& w, double value,
   cairo_arc(cr, cx, cy, r * 0.64, 0, 2 * kPiD);
   setRgb(cr, {0.18, 0.19, 0.20});
   cairo_fill(cr);
+
+  // Outer recommended and value arcs.
+  if (spec.recMax > spec.recMin && !spec.stepped) {
+    const double rf0 = clamp01((spec.recMin - spec.min) / (spec.max - spec.min));
+    const double rf1 = clamp01((spec.recMax - spec.min) / (spec.max - spec.min));
+    cairo_set_line_width(cr, 4);
+    setRgb(cr, kAccent, 0.30);
+    cairo_arc(cr, cx, cy, r + 5, knobAngle(rf0), knobAngle(rf1));
+    cairo_stroke(cr);
+  }
+  cairo_set_line_width(cr, 2.2);
+  setRgb(cr, kAccent, 0.95);
+  cairo_arc(cr, cx, cy, r + 2, knobAngle(0.0), knobAngle(f));
+  cairo_stroke(cr);
 
   // Indicator.
   const double a = knobAngle(f);
@@ -1015,7 +1069,19 @@ void Panel::drawToggle(cairo_t* cr, const Widget& w, bool on) const {
   cairo_set_line_width(cr, 1);
   roundRect(cr, w.x + 0.5, w.y + 0.5, w.w - 1, w.h - 1, 4);
   cairo_stroke(cr);
-  text(cr, w.label, w.x + w.w * 0.5, w.y + w.h * 0.5 + 4, 9, 1,
+  const char* label = w.label;
+  if (w.param == P_LOW_BELL || w.param == P_HIGH_BELL) {
+    label = on ? "BELL" : "SHELF";
+  } else if (w.param == P_HPF_ON) {
+    label = on ? "HPF ON" : "HPF OFF";
+  } else if (w.param == P_POLARITY) {
+    label = on ? "POLARITY \u00d8" : "POLARITY";
+  } else if (w.param == P_ECHO_SYNC) {
+    label = on ? "SYNC" : "FREE";
+  } else if (w.label && std::strcmp(w.label, "ON") == 0) {
+    label = on ? "ON" : "OFF";
+  }
+  text(cr, label, w.x + w.w * 0.5, w.y + w.h * 0.5 + 4, 9, 1,
        on ? 0.10 : 0.78, on ? 0.08 : 0.78, on ? 0.05 : 0.78);
 }
 
@@ -1093,6 +1159,7 @@ void Panel::drawRightRail(cairo_t* cr, const Shared& shared,
   roundRect(cr, 896.5, 136.5, 123, 455, 6);
   cairo_stroke(cr);
 
+  text(cr, "LEVEL", 906, 148, 7.5, 0, kDim.r, kDim.g, kDim.b);
   drawMeter(cr, 908, 156, 38, 110, shared.inPeakLDb.load(),
             shared.inPeakRDb.load(), "IN");
   {
@@ -1105,15 +1172,18 @@ void Panel::drawRightRail(cairo_t* cr, const Shared& shared,
   drawMeter(cr, 956, 156, 38, 110, shared.outPeakLDb.load(),
             shared.outPeakRDb.load(), "OUT");
 
-  text(cr, "GR", 906, 292, 8, 0, kDim.r, kDim.g, kDim.b);
+  setRgb(cr, kDim, 0.18);
+  cairo_rectangle(cr, 906, 282, 108, 1);
+  cairo_fill(cr);
+  text(cr, "GAIN REDUCTION", 906, 294, 7, 0, kDim.r, kDim.g, kDim.b);
   const struct {
     const char* label;
     float db;
     double x;
-  } bars[4] = {{"C", shared.compGrDb.load(), 908},
-               {"S", shared.sibGrDb.load(), 930},
-               {"H", shared.harshGrDb.load(), 952},
-               {"L", shared.limGrDb.load(), 974}};
+  } bars[4] = {{"CMP", shared.compGrDb.load(), 908},
+               {"SIB", shared.sibGrDb.load(), 930},
+               {"HRS", shared.harshGrDb.load(), 952},
+               {"LIM", shared.limGrDb.load(), 974}};
   for (const auto& b : bars) {
     const double f = clamp01(b.db / 18.0);
     roundRect(cr, b.x, 300, 16, 70, 2);
@@ -1124,7 +1194,7 @@ void Panel::drawRightRail(cairo_t* cr, const Shared& shared,
       setRgb(cr, kAccent, 0.9);
       cairo_fill(cr);
     }
-    text(cr, b.label, b.x + 8, 386, 8, 1, kDim.r, kDim.g, kDim.b);
+    text(cr, b.label, b.x + 8, 386, 7.5, 1, kDim.r, kDim.g, kDim.b);
   }
 
   text(cr, formatValue(kParamSpecs[P_OUTPUT], shared.get(P_OUTPUT)).c_str(),
@@ -1375,7 +1445,7 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
       }
       return true;
     }
-    if (w.kind == Kind::Toggle) {
+    if (w.kind == Kind::Toggle || w.kind == Kind::Power) {
       shared.set(w.param, shared.get(w.param) > 0.5 ? 0.0 : 1.0);
       state.presetDirty = true;
       return true;
@@ -1446,7 +1516,7 @@ bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
       continue;
     }
     const ParamSpec& spec = kParamSpecs[w.param];
-    if (w.kind == Kind::Toggle) {
+    if (w.kind == Kind::Toggle || w.kind == Kind::Power) {
       shared.set(w.param, shared.get(w.param) > 0.5 ? 0.0 : 1.0);
     } else if (w.kind == Kind::Choice) {
       const int n = std::max(1, static_cast<int>(spec.max - spec.min + 1));
