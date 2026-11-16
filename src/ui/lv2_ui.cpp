@@ -58,6 +58,7 @@ struct Ui {
   bool lastLearnInput = false;
   bool lastLearnSib = false;
   bool lastCompare = false;
+  bool flagsInitialized = false;
   std::chrono::steady_clock::time_point lastFrame{};
 
   // Largest uniform scale that fits the panel into the host allocation.
@@ -168,6 +169,15 @@ struct Ui {
       }
     }
 
+    if (!flagsInitialized && write) {
+      const float zero = 0.0f;
+      write(controller, kFirstParam + vocal::P_COUNT, sizeof(float), 0, &zero);
+      write(controller, kFirstParam + vocal::P_COUNT + 1, sizeof(float), 0,
+            &zero);
+      write(controller, kFirstParam + vocal::P_COUNT + 2, sizeof(float), 0,
+            &zero);
+      flagsInitialized = true;
+    }
     const bool learnInput =
         shared.inputLearnActive.load(std::memory_order_relaxed);
     if (learnInput != lastLearnInput) {
