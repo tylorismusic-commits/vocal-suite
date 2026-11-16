@@ -1,0 +1,19 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#> .
+@prefix pset: <http://lv2plug.in/ns/ext/presets#> .
+
+<https://github.com/tylorismusic-commits/vocal-suite>
+  a lv2:Plugin, doap:Project ;
+  lv2:binary <vocal_suite.so> ;
+  rdfs:seeAlso <vocal_suite.ttl> .
+
+<https://github.com/tylorismusic-commits/vocal-suite#ui>
+  a ui:X11UI ;
+  lv2:binary <vocal_suite_ui.so> ;
+  rdfs:seeAlso <vocal_suite.ttl> .
+

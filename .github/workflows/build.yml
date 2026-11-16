@@ -1,0 +1,57 @@
+name: build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake pkg-config libcairo2-dev libfreetype6-dev libx11-dev \
+            liblv2-dev liblilv-dev libxtst-dev xvfb
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+
+      - name: Build
+        run: cmake --build build -j"$(nproc)"
+
+      # Includes: DSP, panel geometry, CLAP host, LV2 host, LV2 UI (Xvfb) and
+      # the generated-metadata freshness check.
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: lv2lint
+        if: matrix.compiler == 'g++'
+        run: |
+          sudo apt-get install -y lv2lint || true
+          if command -v lv2lint >/dev/null 2>&1; then
+            LV2_PATH="$PWD/build/lv2" lv2lint -S vocal_suite \
+              https://github.com/tylorismusic-commits/vocal-suite
+          else
+            echo "lv2lint not packaged here; skipped"
+          fi
+
+      - name: Release tarball
+        if: matrix.compiler == 'g++'
+        run: cmake --build build --target dist && ls -l build/dist
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.compiler == 'g++'
+        with:
+          name: vocal-suite-tarball
+          path: build/dist/*.tar.gz

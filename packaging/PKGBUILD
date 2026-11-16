@@ -1,0 +1,27 @@
+# Maintainer: tylor <tylorismusic@users.noreply.github.com>
+pkgname=vocal-suite
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Eight-stage vocal strip for Linux (CLAP + LV2)"
+arch=('x86_64')
+url="https://github.com/tylorismusic-commits/vocal-suite"
+license=('GPL-3.0-or-later')
+depends=('cairo' 'freetype2' 'libx11' 'lv2')
+makedepends=('cmake' 'pkgconf' 'lilv' 'libxtst' 'xorg-server-xvfb')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+  cmake -S "$pkgname-$pkgver" -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build -j"$(nproc)"
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}
