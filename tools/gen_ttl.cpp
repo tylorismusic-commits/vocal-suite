@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <vector>
 
 #include "params.hpp"
 #include "presets.hpp"
@@ -188,13 +189,28 @@ int main() {
   // presets
   std::printf("\n# ---- presets ----\n");
   const auto& presets = vocal::factoryPresets();
+  std::vector<std::string> banks;
+  for (const auto& p : presets) {
+    bool seen = false;
+    for (const auto& b : banks) {
+      if (b == p.category) {
+        seen = true;
+        break;
+      }
+    }
+    if (!seen) {
+      banks.push_back(p.category);
+      std::printf("<%s#bank_%s> a pset:Bank ;\n", kUri, slug(p.category).c_str());
+      std::printf("  rdfs:label \"%s\" .\n\n", esc(p.category).c_str());
+    }
+  }
   for (const auto& p : presets) {
     std::printf("<%s#preset_%s> a pset:Preset ;\n", kUri, slug(p.name).c_str());
     std::printf("  lv2:appliesTo <%s> ;\n", kUri);
     std::printf("  rdfs:label \"%s\" ;\n", esc(p.name).c_str());
     std::printf("  rdfs:comment \"%s\" ;\n", esc(p.blurb).c_str());
-    std::printf("  pset:bank [ rdfs:label \"%s\" ] ;\n",
-                esc(p.category).c_str());
+    std::printf("  pset:bank <%s#bank_%s> ;\n", kUri,
+                slug(p.category).c_str());
     for (uint32_t i = 0; i < vocal::P_COUNT; ++i) {
       std::printf("  lv2:port [ lv2:symbol \"%s\" ; pset:value %g ]%s\n",
                   vocal::kParamSpecs[i].symbol, p.values[i],

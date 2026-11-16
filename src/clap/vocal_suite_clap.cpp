@@ -341,6 +341,9 @@ struct Plugin {
   std::atomic<bool> active{false};
 };
 
+const char* const kFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
+                                 CLAP_PLUGIN_FEATURE_STEREO, nullptr};
+
 const clap_plugin_descriptor_t kDescriptor = {
     CLAP_VERSION,
     kPluginId,
@@ -351,11 +354,8 @@ const clap_plugin_descriptor_t kDescriptor = {
     "",
     kVersion,
     "Eight-stage vocal strip: input, compressor, tone, drive, de-esser, echo, space and output. Rock, metal, pop, rap and podcast presets.",
-    nullptr,
+    kFeatures,
 };
-
-const char* const kFeatures[] = {CLAP_PLUGIN_FEATURE_AUDIO_EFFECT,
-                                 CLAP_PLUGIN_FEATURE_STEREO, nullptr};
 
 void writeName(char* dst, size_t size, const char* src) {
   std::strncpy(dst, src, size - 1);
@@ -404,10 +404,6 @@ bool paramsValue(const clap_plugin_t* p, clap_id id, double* value) {
 }
 
 namespace {
-
-const char* const kDistortionNames[4] = {"Off", "Dist 2", "Dist 3", "Clip"};
-const char* const kMeterNames[6] = {"GR",   "+8", "+4",
-                                    "Graph", "Off", "Curve"};
 
 } // namespace
 

@@ -12,11 +12,26 @@
 
 
 # ---- presets ----
+<https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> a pset:Bank ;
+  rdfs:label "Rock / Metal" .
+
+<https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> a pset:Bank ;
+  rdfs:label "Pop / Rap / Podcast" .
+
+<https://github.com/tylorismusic-commits/vocal-suite#bank_Screams_Extreme> a pset:Bank ;
+  rdfs:label "Screams / Extreme" .
+
+<https://github.com/tylorismusic-commits/vocal-suite#bank_Clean_Acoustic> a pset:Bank ;
+  rdfs:label "Clean / Acoustic" .
+
+<https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> a pset:Bank ;
+  rdfs:label "Utility" .
+
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Modern_Metal_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Modern Metal Lead" ;
   rdfs:comment "FET comp, 3 kHz presence, ducked 1/8D echo and a short plate." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -78,7 +93,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Modern Metal Verse" ;
   rdfs:comment "Controlled verse level with a short plate and no slap." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -140,7 +155,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Modern Metal Low Voice" ;
   rdfs:comment "Deeper HPF, lower sibilance focus, tight low mids." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -202,7 +217,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Modern Metal High Voice" ;
   rdfs:comment "Higher HPF, brighter sibilance focus, restrained air." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -264,7 +279,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Metalcore Scream" ;
   rdfs:comment "Hard clip drive, strong harshness control, tight room." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -326,7 +341,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Metalcore Clean" ;
   rdfs:comment "Opto leveling, gentle valve drive, wide plate." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -388,7 +403,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Deathcore Growl" ;
   rdfs:comment "Low HPF, heavy clip, short dark room." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -450,7 +465,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Prog Metal Lead" ;
   rdfs:comment "VCA control, smooth valve drive, long plate." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -512,7 +527,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Classic Rock Lead" ;
   rdfs:comment "FET push, valve grit, 1/4 echo and a medium plate." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -574,7 +589,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Hard Rock Verse" ;
   rdfs:comment "Natural opto leveling with a small room." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -636,7 +651,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Grunge Lead" ;
   rdfs:comment "Console drive and a dark room for a raw lead." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -698,7 +713,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Pop-Punk Lead" ;
   rdfs:comment "Bright console drive, air and a short plate." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -760,7 +775,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Pop-Punk Scream" ;
   rdfs:comment "Clip edge, tight room, short delay." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -822,7 +837,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Power Ballad" ;
   rdfs:comment "Gentle opto, air and a long hall." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -884,7 +899,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Arena Anthem" ;
   rdfs:comment "VCA control, wide plate, 1/4 echo." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -946,7 +961,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Black Metal Raw" ;
   rdfs:comment "Thin HPF, hard clip, almost dry." ;
-  pset:bank [ rdfs:label "Rock / Metal" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Rock_Metal> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1008,7 +1023,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Pop Lead" ;
   rdfs:comment "Opto leveling, console drive and a clean plate." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1070,7 +1085,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Pop Airy" ;
   rdfs:comment "Light comp, lots of air, a long plate." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1132,7 +1147,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Pop Whisper" ;
   rdfs:comment "Soft leveling, air and a gentle plate for quiet takes." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1194,7 +1209,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Rap Lead" ;
   rdfs:comment "VCA density, controlled low mids, short slap." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1256,7 +1271,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Rap Low Voice" ;
   rdfs:comment "Low HPF, tight low mids, short room." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1318,7 +1333,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Podcast Voice" ;
   rdfs:comment "Clean opto leveling, de-ess and no effects." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1380,7 +1395,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Podcast Warm" ;
   rdfs:comment "Warm low shelf, gentle de-ess, dry." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1442,7 +1457,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Spoken Word" ;
   rdfs:comment "Intimate leveling with a small plate." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1504,7 +1519,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Background Stack" ;
   rdfs:comment "Air and a plate for stacked backing vocals." ;
-  pset:bank [ rdfs:label "Pop / Rap / Podcast" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Pop_Rap_Podcast> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1566,7 +1581,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Scream Cut" ;
   rdfs:comment "Hard clip, strong harshness cut, short room." ;
-  pset:bank [ rdfs:label "Screams / Extreme" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Screams_Extreme> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1628,7 +1643,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Growl Body" ;
   rdfs:comment "Valve drive and low-mid weight for a growl." ;
-  pset:bank [ rdfs:label "Screams / Extreme" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Screams_Extreme> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1690,7 +1705,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Fry Scream" ;
   rdfs:comment "Thin and edgy, fast delay, no air." ;
-  pset:bank [ rdfs:label "Screams / Extreme" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Screams_Extreme> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1752,7 +1767,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Harsh Whisper" ;
   rdfs:comment "Quiet intensity with clip and a tiny room." ;
-  pset:bank [ rdfs:label "Screams / Extreme" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Screams_Extreme> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1814,7 +1829,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Intimate Clean" ;
   rdfs:comment "Soft opto, air and a small plate." ;
-  pset:bank [ rdfs:label "Clean / Acoustic" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Clean_Acoustic> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1876,7 +1891,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Acoustic Rock" ;
   rdfs:comment "Natural leveling, a little midrange and a short plate." ;
-  pset:bank [ rdfs:label "Clean / Acoustic" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Clean_Acoustic> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -1938,7 +1953,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Soft Verse" ;
   rdfs:comment "Very light control, small room, no drive." ;
-  pset:bank [ rdfs:label "Clean / Acoustic" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Clean_Acoustic> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2000,7 +2015,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Whisper Clean" ;
   rdfs:comment "Airy and intimate, with a light plate." ;
-  pset:bank [ rdfs:label "Clean / Acoustic" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Clean_Acoustic> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2062,7 +2077,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Init — Natural" ;
   rdfs:comment "Neutral starting point that works on most voices." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2124,7 +2139,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Comp Only" ;
   rdfs:comment "Compression only; tone, drive and effects bypassed." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2186,7 +2201,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "De-Ess Only" ;
   rdfs:comment "Sibilance and harshness control with the rest bypassed." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2248,7 +2263,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Echo Throw" ;
   rdfs:comment "A big ducked 1/4 delay for vocal throws." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2310,7 +2325,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Big Plate" ;
   rdfs:comment "Long hall for ballads and backgrounds." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2372,7 +2387,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "LoFi Throw" ;
   rdfs:comment "Tape drive and a filtered delay." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;
@@ -2434,7 +2449,7 @@
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
   rdfs:label "Vocal Bus Glue" ;
   rdfs:comment "Gentle bus control with no effects." ;
-  pset:bank [ rdfs:label "Utility" ] ;
+  pset:bank <https://github.com/tylorismusic-commits/vocal-suite#bank_Utility> ;
   lv2:port [ lv2:symbol "power" ; pset:value 1 ] ;
   lv2:port [ lv2:symbol "input" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "polarity" ; pset:value 0 ] ;

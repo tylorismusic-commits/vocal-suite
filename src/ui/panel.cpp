@@ -35,7 +35,6 @@ const Rgb kEdge{0.055, 0.058, 0.062};
 const Rgb kText{0.900, 0.890, 0.865};
 const Rgb kDim{0.560, 0.550, 0.530};
 const Rgb kAccent{0.900, 0.560, 0.270};
-const Rgb kAccentDim{0.430, 0.270, 0.140};
 const Rgb kGreen{0.340, 0.840, 0.450};
 const Rgb kAmber{0.960, 0.800, 0.280};
 const Rgb kRed{1.000, 0.300, 0.240};
