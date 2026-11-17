@@ -1,6 +1,6 @@
 # Vocal Suite — quick manual
 
-## Three-step start
+## Quick start
 
 1. **INPUT → SET LEVEL.** Sing the loudest phrase for two seconds. The trim
    moves so the peak sits in the green zone (about −12 dBFS).

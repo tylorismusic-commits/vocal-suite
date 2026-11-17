@@ -28,7 +28,7 @@ processors; each stage has its own IN/OUT switch.
 - `lv2_validate` reports zero errors.
 
 Still planned before a 1.0 release: final preset tuning against real vocal
-takes, full host matrix testing, CI publishing, and the remaining UI polish.
+takes, full host matrix testing and CI publishing.
 
 ## Install
 
