@@ -10,6 +10,8 @@
 #include <cstring>
 #include <vector>
 
+#include "params.hpp"
+
 namespace {
 struct EventList {
   const clap_event_header_t* event = nullptr;
@@ -202,6 +204,80 @@ int main(int argc, char** argv) {
     const double gr = gainMeter->get(plugin);
     std::printf("host GR: %.2f dB\n", gr);
     assert(gr < -0.2);
+  }
+
+  // Host transport tempo must drive the echo division.  The manual tempo
+  // fallback is 120 BPM; the host says 90, so 1/8D is 500 ms (24000 samples).
+  {
+    auto setParam = [&](uint32_t id, double value) {
+      clap_event_param_value_t ev{};
+      ev.header.size = sizeof(ev);
+      ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+      ev.header.type = CLAP_EVENT_PARAM_VALUE;
+      ev.param_id = id;
+      ev.note_id = -1;
+      ev.port_index = -1;
+      ev.channel = -1;
+      ev.key = -1;
+      ev.value = value;
+      EventList list{&ev.header};
+      clap_input_events_t events{};
+      events.ctx = &list;
+      events.size = eventCount;
+      events.get = eventGet;
+      params->flush(plugin, &events, nullptr);
+    };
+    setParam(vocal::P_COMP_ON, 0.0);
+    setParam(vocal::P_TONE_ON, 0.0);
+    setParam(vocal::P_DEESS_ON, 0.0);
+    setParam(vocal::P_DRIVE_ON, 0.0);
+    setParam(vocal::P_SPACE_ON, 0.0);
+    setParam(vocal::P_LIMIT_ON, 0.0);
+    setParam(vocal::P_ECHO_ON, 1.0);
+    setParam(vocal::P_ECHO_SYNC, 1.0);
+    setParam(vocal::P_ECHO_DIV, 3.0);
+    setParam(vocal::P_ECHO_MIX, 100.0);
+    setParam(vocal::P_ECHO_FEEDBACK, 0.0);
+    setParam(vocal::P_ECHO_DUCK, 0.0);
+    setParam(vocal::P_ECHO_MOD, 0.0);
+    setParam(vocal::P_ECHO_TONE, 100.0);
+
+    const uint32_t n = 48000;
+    std::vector<float> a(n, 0.0f), b(n, 0.0f), c(n, 0.0f), d(n, 0.0f);
+    a[0] = b[0] = 0.5f;
+    float* inP[2] = {a.data(), b.data()};
+    float* outP[2] = {c.data(), d.data()};
+    clap_audio_buffer_t tempoIn{};
+    tempoIn.data32 = inP;
+    tempoIn.channel_count = 2;
+    clap_audio_buffer_t tempoOut{};
+    tempoOut.data32 = outP;
+    tempoOut.channel_count = 2;
+    clap_event_transport_t transport{};
+    transport.header.size = sizeof(transport);
+    transport.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+    transport.header.type = CLAP_EVENT_TRANSPORT;
+    transport.flags = CLAP_TRANSPORT_HAS_TEMPO;
+    transport.tempo = 90.0;
+    clap_process_t tempoProc{};
+    tempoProc.frames_count = n;
+    tempoProc.audio_inputs = &tempoIn;
+    tempoProc.audio_inputs_count = 1;
+    tempoProc.audio_outputs = &tempoOut;
+    tempoProc.audio_outputs_count = 1;
+    tempoProc.transport = &transport;
+    assert(plugin->process(plugin, &tempoProc) == CLAP_PROCESS_CONTINUE);
+    int peak = 0;
+    float peakV = 0.0f;
+    for (uint32_t i = 100; i < n; ++i) {
+      if (std::fabs(c[i]) > peakV) {
+        peakV = std::fabs(c[i]);
+        peak = static_cast<int>(i);
+      }
+    }
+    std::printf("host-tempo echo peak: %d samples (%.1f ms)\n", peak,
+                peak / 48.0);
+    assert(std::fabs(peak - 24000) < 250);
   }
 
   plugin->deactivate(plugin);

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <vector>
 
 #include "dsp/engine.hpp"
 #include "params.hpp"
@@ -111,6 +112,67 @@ int main() {
     engine.process(l, r, 8192, meters);
     assert(meters.sibLearnValid);
     assert(meters.sibLearnHz > 6500.0f && meters.sibLearnHz < 7500.0f);
+  }
+
+  // Host tempo drives the echo division and survives setControls(), which
+  // carries the manual tempo fallback every block.
+  {
+    Controls c;
+    c.compOn = false;
+    c.toneOn = false;
+    c.driveOn = false;
+    c.deessOn = false;
+    c.echoOn = true;
+    c.echoSync = true;
+    c.echoDiv = 3;       // 1/8D = 0.75 beats
+    c.echoMix = 100.0f;
+    c.echoFeedback = 0.0f;
+    c.echoDuck = 0.0f;
+    c.echoTone = 100.0f;
+    c.echoMod = 0.0f;
+    c.bpm = 120.0f;      // manual fallback
+    c.spaceOn = false;
+    c.limitOn = false;
+    engine.setTempo(90.0f, true);
+    engine.setControls(c);  // must not overwrite the host tempo
+    std::vector<float> l(48000 * 2, 0.0f);
+    std::vector<float> r(48000 * 2, 0.0f);
+    l[0] = r[0] = 0.5f;
+    engine.process(l.data(), r.data(), static_cast<int>(l.size()), meters);
+    int peak = 0;
+    float peakV = 0.0f;
+    for (int i = 100; i < static_cast<int>(l.size()); ++i) {
+      if (std::fabs(l[i]) > peakV) {
+        peakV = std::fabs(l[i]);
+        peak = i;
+      }
+    }
+    const double expected = 48000.0 * 60.0 / 90.0 * 0.75;
+    assert(std::fabs(peak - expected) < 200.0);
+  }
+
+  // Limiter ceiling moves the output ceiling.
+  {
+    Controls c;
+    c.compOn = false;
+    c.toneOn = false;
+    c.driveOn = false;
+    c.deessOn = false;
+    c.echoOn = false;
+    c.spaceOn = false;
+    c.limitOn = true;
+    c.limitCeilingDb = -6.0f;
+    engine.setControls(c);
+    std::vector<float> l(48000, 0.0f), r(48000, 0.0f);
+    for (int i = 0; i < 48000; ++i) {
+      l[i] = r[i] = 2.0f * std::sin(2.0 * 3.141592653589793 * 1000.0 * i / 48000.0);
+    }
+    engine.process(l.data(), r.data(), 48000, meters);
+    float peak = 0.0f;
+    for (float x : l) {
+      peak = std::max(peak, std::fabs(x));
+    }
+    assert(peak <= 0.505f);
   }
 
   // Compare passes the dry signal through.

@@ -4,6 +4,7 @@
 
 #include <cairo.h>
 
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -36,6 +37,8 @@ struct PanelState {
   int inputLearnTicks = 0;
   bool sibLearning = false;
   int sibLearnTicks = 0;
+  int editParam = -1;
+  std::string editText;
 };
 
 class Panel {
@@ -52,6 +55,8 @@ public:
 
   bool pointerDown(Shared& shared, PanelState& state, double x, double y,
                    bool fine);
+  bool contextDown(Shared& shared, PanelState& state, double x, double y);
+  bool keyEvent(Shared& shared, PanelState& state, int key, const char* text);
   bool pointerMove(Shared& shared, PanelState& state, double x, double y,
                    bool fine);
   void pointerUp(Shared& shared);
@@ -135,6 +140,9 @@ private:
   double dragStartY_ = 0.0;
   double dragStartValue_ = 0.0;
   double dragStartX_ = 0.0;
+  uint32_t lastClickParam_ = 0;
+  bool hasLastClick_ = false;
+  std::chrono::steady_clock::time_point lastClickTime_{};
   cairo_font_face_t* font_ = nullptr;
   void* ft_ = nullptr;
   void* ftFace_ = nullptr;

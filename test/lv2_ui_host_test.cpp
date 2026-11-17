@@ -8,6 +8,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include "params.hpp"
+
 namespace {
 void writeFn(LV2UI_Handle, uint32_t, uint32_t, uint32_t, const void*) {}
 } // namespace
@@ -53,9 +55,9 @@ int main(int argc, char** argv) {
   }
 
   float v = 3.5f;
-  desc->port_event(ui, 4 + 56 + 3, sizeof(float), 0, &v);
-  desc->port_event(ui, 4 + 56 + 11, sizeof(float), 0, &v);
-  desc->port_event(ui, 4 + 56 + 13, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + vocal::P_COUNT + 3, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + vocal::P_COUNT + 11, sizeof(float), 0, &v);
+  desc->port_event(ui, 4 + vocal::P_COUNT + 13, sizeof(float), 0, &v);
   for (int i = 0; i < 5; ++i) {
     idle->idle(ui);
   }

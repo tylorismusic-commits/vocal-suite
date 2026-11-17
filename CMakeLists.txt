@@ -150,6 +150,7 @@ pkg_check_modules(LILV QUIET IMPORTED_TARGET lilv-0)
 
 add_executable(vocal_clap_host_test test/clap_host_test.cpp)
 target_include_directories(vocal_clap_host_test PRIVATE
+  "${CMAKE_SOURCE_DIR}/src"
   "${CMAKE_SOURCE_DIR}/third_party/clap/include")
 target_link_libraries(vocal_clap_host_test PRIVATE ${CMAKE_DL_LIBS})
 target_compile_features(vocal_clap_host_test PRIVATE cxx_std_17)
@@ -166,6 +167,16 @@ if(LILV_FOUND)
   add_dependencies(vocal_lv2_host_test vocal_suite_lv2_bundle)
   add_test(NAME vocal_lv2_host
     COMMAND vocal_lv2_host_test "${LV2_BUNDLE_DIR}")
+
+  add_executable(vocal_lv2_tempo_test test/lv2_tempo_test.cpp)
+  target_include_directories(vocal_lv2_tempo_test PRIVATE
+    "${CMAKE_SOURCE_DIR}/src" ${PKG_CONFIG_LV2_INCLUDE_DIRS})
+  target_link_libraries(vocal_lv2_tempo_test PRIVATE PkgConfig::LILV)
+  target_compile_features(vocal_lv2_tempo_test PRIVATE cxx_std_17)
+  add_dependencies(vocal_lv2_tempo_test vocal_suite_lv2_bundle)
+  add_test(NAME vocal_lv2_tempo
+    COMMAND vocal_lv2_tempo_test "${LV2_BUNDLE_DIR}")
+  target_compile_options(vocal_lv2_tempo_test PRIVATE -UNDEBUG)
 endif()
 
 find_program(XVFB_RUN xvfb-run)
@@ -188,7 +199,7 @@ endif()
 
 add_executable(vocal_lv2_ui_host_test test/lv2_ui_host_test.cpp)
 target_include_directories(vocal_lv2_ui_host_test PRIVATE
-  ${PKG_CONFIG_LV2_INCLUDE_DIRS})
+  "${CMAKE_SOURCE_DIR}/src" ${PKG_CONFIG_LV2_INCLUDE_DIRS})
 target_link_libraries(vocal_lv2_ui_host_test PRIVATE
   PkgConfig::X11 ${CMAKE_DL_LIBS})
 target_compile_features(vocal_lv2_ui_host_test PRIVATE cxx_std_17)

@@ -7,6 +7,8 @@
 2. **Preset browser.** Filter by **STYLE**, **VOICE** and **INTENSITY**, then
    pick the closest preset.
 3. **COMPARE.** Click it to toggle the dry signal; click again to return.
+4. **Right-click** any knob or fader to type a value. **Double-click** it to
+   reset to the default.
 
 Most presets need one or two moves after that. The recommended-range arc on
 each knob shows where it usually sits.
@@ -71,7 +73,9 @@ Auto gain keeps the module level-neutral.
 
 ## ECHO
 
-- **Sync** on, **1/8D** is the rock/metal default.
+- **Sync** on, **1/8D** is the rock/metal default. The Tempo knob follows the
+  project BPM, and Time becomes a display-only readout of the selected
+  division.
 - **Feedback** 20–45%; more becomes a effect, not a vocal.
 - **Duck** 40–80% keeps the repeats under the vocal.
 - **Width** 0 is mono, 100 is full ping-pong.
@@ -89,8 +93,8 @@ Auto gain keeps the module level-neutral.
 ## OUT
 
 - Output trim ±18 dB.
-- **Limit** is a zero-latency safety clip at −0.3 dBFS. It is not a true-peak
-  mastering limiter.
+- **Limit** is a zero-latency safety clip. **Ceiling** sets its ceiling from
+  −6 to 0 dBFS (default −0.3). It is not a true-peak mastering limiter.
 
 ## Voice-type starting points
 
@@ -124,3 +128,7 @@ Auto gain keeps the module level-neutral.
 - **No input** — press SET LEVEL; check the host input routing.
 - **Preset jumps level** — the factory set is level-matched on a synthetic
   reference; final tuning against real takes is still pending.
+- **Echo time will not edit** — Sync is on. The division chips select the
+  pattern and Time shows the computed delay. Turn Sync off for free time.
+- **Typed value did not apply** — press Enter; Esc cancels. The value is
+  clamped to the control range.

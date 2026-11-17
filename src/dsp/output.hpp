@@ -21,6 +21,7 @@ public:
   void setControls(const Controls& c) noexcept {
     gain_.setTarget(dbToGain(c.outputDb));
     limit_ = c.limitOn;
+    ceiling_ = clampf(dbToGain(c.limitCeilingDb), 0.1f, 1.0f);
   }
 
   // Returns the limiter gain reduction in dB (>= 0).
@@ -31,12 +32,12 @@ public:
     if (!limit_) {
       return 0.0f;
     }
-    constexpr float kCeiling = 0.9660509f;  // -0.3 dBFS
+    const float kCeiling = ceiling_;
     const float al = std::fabs(l);
     const float ar = std::fabs(r);
     const float peak = std::max(al, ar);
     float gr = 0.0f;
-    constexpr float kKneeStart = kCeiling - 0.05f;
+    const float kKneeStart = kCeiling - 0.05f;
     if (peak > kKneeStart) {
       // Soft knee that is continuous at kKneeStart, has unit slope there,
       // and asymptotes to the ceiling.  Zero latency by design.
@@ -56,6 +57,7 @@ private:
   float sr_ = 48000.0f;
   Smoothed gain_;
   bool limit_ = true;
+  float ceiling_ = 0.9660509f;
 };
 
 } // namespace vocal

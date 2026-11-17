@@ -17,10 +17,18 @@ int main(int argc, char** argv) {
   Shared shared;
   PanelState state;
   state.tab = tab;
-  state.presetOpen = argc > 3 ? 1 : 0;
+  state.presetOpen = argc > 3 ? std::stoi(argv[3]) : 0;
   panel.applyPreset(shared, state, 0);
-  if (argc > 4) {
+  if (argc > 4 && std::stoi(argv[4]) != 0) {
     shared.compare.store(true, std::memory_order_relaxed);
+  }
+  if (argc > 5 && std::stoi(argv[5]) != 0) {
+    state.editParam = static_cast<int>(P_INPUT);
+    state.editText = "12.5";
+  }
+  if (argc > 6 && std::stoi(argv[6]) != 0) {
+    shared.bpm.store(90.0f, std::memory_order_relaxed);
+    shared.hostTempo.store(true, std::memory_order_relaxed);
   }
 
   cairo_surface_t* surface =

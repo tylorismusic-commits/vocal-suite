@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+
+#include "params.hpp"
 #include <string>
 
 int main(int argc, char** argv) {
@@ -66,20 +68,21 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 64; ++i) {
     assert(std::isfinite(audioOutL[i]) && std::isfinite(audioOutR[i]));
   }
-  std::printf("LV2 comp GR port: %.2f dB\n", values[4 + 56 + 3]);
-  assert(values[4 + 56 + 3] > 0.0f);
+  std::printf("LV2 comp GR port: %.2f dB\n",
+              values[4 + vocal::P_COUNT + 3]);
+  assert(values[4 + vocal::P_COUNT + 3] > 0.0f);
 
   // The compare port is a dry monitor: output must equal input.
-  values[4 + 56 + 2] = 1.0f;  // compare
+  values[4 + vocal::P_COUNT + 2] = 1.0f;  // compare
   lilv_instance_run(inst, 64);
   std::printf("compare port=%.1f out0=%.6f in0=%.6f out1=%.6f in1=%.6f\n",
-              values[4 + 56 + 2], audioOutL[0], audioInL[0], audioOutL[1],
+              values[4 + vocal::P_COUNT + 2], audioOutL[0], audioInL[0], audioOutL[1],
               audioInL[1]);
   for (int i = 0; i < 64; ++i) {
     assert(std::fabs(audioOutL[i] - audioInL[i]) < 1.0e-6f);
     assert(std::fabs(audioOutR[i] - audioInR[i]) < 1.0e-6f);
   }
-  values[4 + 56 + 2] = 0.0f;
+  values[4 + vocal::P_COUNT + 2] = 0.0f;
   lilv_instance_deactivate(inst);
   lilv_instance_free(inst);
   lilv_world_free(world);

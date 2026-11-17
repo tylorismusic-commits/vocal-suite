@@ -183,6 +183,36 @@ int main() {
   assert(state.presetScroll >= 1);
   state.presetOpen = 0;
 
+  // Right-click opens text entry; Enter applies; double-click resets.
+  state.tab = 0;
+  shared.set(P_INPUT, 0.0);
+  assert(panel.contextDown(shared, state, 180, 300));
+  assert(state.editParam == static_cast<int>(P_INPUT));
+  panel.keyEvent(shared, state, 0, "1");
+  panel.keyEvent(shared, state, 0, "2");
+  panel.keyEvent(shared, state, 13, "");
+  assert(std::fabs(shared.get(P_INPUT) - 12.0) < 1.0e-9);
+  panel.pointerDown(shared, state, 180, 300, false);
+  panel.pointerUp(shared);
+  panel.pointerDown(shared, state, 180, 300, false);
+  panel.pointerUp(shared);
+  assert(std::fabs(shared.get(P_INPUT) - 0.0) < 1.0e-9);
+
+  // Limiter ceiling knob is interactive.
+  state.tab = 7;
+  const double ceilingBefore = shared.get(P_LIMIT_CEILING);
+  panel.pointerDown(shared, state, 650, 390, false);
+  panel.pointerMove(shared, state, 650, 360, false);
+  panel.pointerUp(shared);
+  assert(std::fabs(shared.get(P_LIMIT_CEILING) - ceilingBefore) > 1.0e-6);
+
+  // In tempo-sync mode the Time knob is display-only.
+  state.tab = 5;
+  shared.set(P_ECHO_SYNC, 1.0);
+  panel.pointerDown(shared, state, 100, 350, false);
+  assert(!panel.dragging());
+  shared.set(P_ECHO_SYNC, 0.0);
+
   // COMPARE is a sticky dry monitor, not a momentary-only button.
   state.presetOpen = 0;
   state.tab = 0;

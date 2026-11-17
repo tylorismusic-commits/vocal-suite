@@ -83,6 +83,7 @@ struct Controls {
   // Output
   float outputDb = 0.0f;
   bool limitOn = true;
+  float limitCeilingDb = -0.3f;
 };
 
 } // namespace vocal

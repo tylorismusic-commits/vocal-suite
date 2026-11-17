@@ -20,6 +20,7 @@ struct Meters {
   float scPeakDb = -120.0f;
   bool scActive = false;
   float bpm = 120.0f;
+  bool hostTempo = false;
   float inputLearnPeakDb = -120.0f;
   float sibLearnHz = 6500.0f;
   float sibLearnEnergyDb = -120.0f;

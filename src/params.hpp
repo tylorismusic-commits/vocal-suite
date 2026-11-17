@@ -75,6 +75,7 @@ enum ParamId : uint32_t {
   P_SPACE_MIX,
   P_OUTPUT,
   P_LIMIT_ON,
+  P_LIMIT_CEILING,
   P_COUNT
 };
 
@@ -246,6 +247,8 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      {}, -3.0, 3.0},
     {"limit_on", "Limit", "Output", 0.0, 1.0, 1.0, true, false, true, nullptr,
      {}, 0.0, 1.0},
+    {"limit_ceiling", "Ceiling", "Output", -6.0, 0.0, -0.3, false, false, false,
+     "dB", {}, -1.0, -0.1},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -418,6 +421,7 @@ inline Controls controlsFrom(const Shared& s) {
 
   c.outputDb = static_cast<float>(s.get(P_OUTPUT));
   c.limitOn = s.get(P_LIMIT_ON) > 0.5;
+  c.limitCeilingDb = static_cast<float>(s.get(P_LIMIT_CEILING));
   return c;
 }
 

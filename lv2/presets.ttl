@@ -90,7 +90,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 12 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 3.24 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Modern_Metal_Verse> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -152,7 +153,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.67 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Modern_Metal_Low_Voice> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -214,7 +216,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 10 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 2.67 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Modern_Metal_High_Voice> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -276,7 +279,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 12 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 3.06 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Metalcore_Scream> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -338,7 +342,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.38 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Metalcore_Clean> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -400,7 +405,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 16 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.23 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Deathcore_Growl> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -462,7 +468,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 6 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.51 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Prog_Metal_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -524,7 +531,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 15 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 3.23 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Classic_Rock_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -586,7 +594,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 13 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.36 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Hard_Rock_Verse> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -648,7 +657,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 9 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.02 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Grunge_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -710,7 +720,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 10 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.96 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Pop_Punk_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -772,7 +783,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 12 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 2.6 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Pop_Punk_Scream> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -834,7 +846,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.82 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Power_Ballad> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -896,7 +909,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 20 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.79 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Arena_Anthem> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -958,7 +972,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 18 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.77 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Black_Metal_Raw> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1020,7 +1035,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 7 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 2.09 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Pop_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1082,7 +1098,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 14 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.08 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Pop_Airy> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1144,7 +1161,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 18 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.21 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Pop_Whisper> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1206,7 +1224,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 16 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.26 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Rap_Lead> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1268,7 +1287,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.9 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Rap_Low_Voice> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1330,7 +1350,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 7 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.87 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Podcast_Voice> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1392,7 +1413,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value -0.02 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Podcast_Warm> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1454,7 +1476,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value -0.36 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Spoken_Word> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1516,7 +1539,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.58 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Background_Stack> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1578,7 +1602,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 14 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.22 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Scream_Cut> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1640,7 +1665,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 6 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.15 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Growl_Body> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1702,7 +1728,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 7 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.59 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Fry_Scream> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1764,7 +1791,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 5 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 2 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Harsh_Whisper> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1826,7 +1854,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 5 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.53 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Intimate_Clean> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1888,7 +1917,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 12 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.99 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Acoustic_Rock> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -1950,7 +1980,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 10 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.34 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Soft_Verse> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2012,7 +2043,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 9 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0.67 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Whisper_Clean> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2074,7 +2106,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 14 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.11 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Init_Natural> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2136,7 +2169,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Comp_Only> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2198,7 +2232,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_De_Ess_Only> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2260,7 +2295,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Echo_Throw> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2322,7 +2358,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value -2.56 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Big_Plate> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2384,7 +2421,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 30 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 1.21 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_LoFi_Throw> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2446,7 +2484,8 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 8 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 2.33 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 
 <https://github.com/tylorismusic-commits/vocal-suite#preset_Vocal_Bus_Glue> a pset:Preset ;
   lv2:appliesTo <https://github.com/tylorismusic-commits/vocal-suite> ;
@@ -2508,5 +2547,6 @@ idpy:queue_draw a lv2:Feature .
   lv2:port [ lv2:symbol "space_duck" ; pset:value 40 ] ;
   lv2:port [ lv2:symbol "space_mix" ; pset:value 0 ] ;
   lv2:port [ lv2:symbol "output" ; pset:value 0 ] ;
-  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] .
+  lv2:port [ lv2:symbol "limit_on" ; pset:value 1 ] ;
+  lv2:port [ lv2:symbol "limit_ceiling" ; pset:value -0.3 ] .
 

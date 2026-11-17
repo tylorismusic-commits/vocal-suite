@@ -52,15 +52,18 @@ public:
 
   void setControls(const Controls& c) noexcept {
     controls_ = c;
-    bpm_ = c.bpm > 1.0f ? c.bpm : 120.0f;
-    input_.setControls(c);
-    comp_.setControls(c);
-    tone_.setControls(c);
-    drive_.setControls(c);
-    deess_.setControls(c);
-    echo_.setControls(c);
-    space_.setControls(c);
-    output_.setControls(c);
+    if (hostTempoActive_) {
+      controls_.bpm = hostBpm_;
+    }
+    bpm_ = controls_.bpm > 1.0f ? controls_.bpm : 120.0f;
+    input_.setControls(controls_);
+    comp_.setControls(controls_);
+    tone_.setControls(controls_);
+    drive_.setControls(controls_);
+    deess_.setControls(controls_);
+    echo_.setControls(controls_);
+    space_.setControls(controls_);
+    output_.setControls(controls_);
     // A bypassed stage is not reducing anything.  Hosts read the GR meter for
     // automatic compensation and mixing displays, so do not leave a stale
     // value behind when the stage is off, the plug-in is bypassed, or the
@@ -77,12 +80,17 @@ public:
     }
   }
 
-  void setTempo(float bpm, bool /*host*/) noexcept {
-    if (std::isfinite(bpm) && bpm > 1.0f) {
-      bpm_ = bpm;
-      controls_.bpm = bpm;
-      echo_.setControls(controls_);
+  void setTempo(float bpm, bool host) noexcept {
+    if (!std::isfinite(bpm) || bpm <= 1.0f) {
+      return;
     }
+    hostTempoActive_ = host;
+    if (host) {
+      hostBpm_ = bpm;
+    }
+    bpm_ = bpm;
+    controls_.bpm = bpm;
+    echo_.setControls(controls_);
   }
 
   void reset() noexcept {
@@ -114,6 +122,7 @@ public:
     }
     meters = Meters{};
     meters.bpm = bpm_;
+    meters.hostTempo = hostTempoActive_;
     if (!controls_.inputLearnActive) {
       inputLearnPeak_ = -120.0f;
     }
@@ -258,6 +267,8 @@ private:
 
   float sr_ = 48000.0f;
   float bpm_ = 120.0f;
+  float hostBpm_ = 120.0f;
+  bool hostTempoActive_ = false;
   Controls controls_;
   InputStage input_;
   VocalComp comp_;

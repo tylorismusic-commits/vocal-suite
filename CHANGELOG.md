@@ -2,6 +2,13 @@
 
 ## 0.1.0 — development build
 
+- Limiter ceiling control (−6…0 dBFS) on the OUTPUT page.
+- Right-click a knob/fader to type a value; double-click resets it.
+- Echo host-tempo sync now follows the project BPM in CLAP and LV2. Time is a
+  display-only readout of the selected division when Sync is on.
+- Compressor gain reduction is published to hosts (CLAP gain metering, LV2 GR
+  port and inline display).
+
 - New Vocal Suite project: CLAP + LV2 eight-stage vocal strip.
 - Fixed serial chain: INPUT → COMP → TONE → DRIVE → DE-ESS → ECHO → SPACE →
   OUT, with per-stage IN/OUT.

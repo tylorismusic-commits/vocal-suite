@@ -5,6 +5,7 @@
 
 #include "presets.hpp"
 #include "dsp/drive.hpp"
+#include "dsp/echo.hpp"
 
 #include <cairo-ft.h>
 #include <ft2build.h>
@@ -13,6 +14,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <vector>
@@ -642,6 +644,13 @@ void Panel::pageOut() {
   limit.h = 28;
   limit.label = "LIMIT";
   widgets_.push_back(limit);
+  Widget ceiling{};
+  ceiling.kind = Kind::Knob;
+  ceiling.param = P_LIMIT_CEILING;
+  ceiling.x = 650;
+  ceiling.y = 390;
+  ceiling.r = 30;
+  widgets_.push_back(ceiling);
 }
 
 // ---------------------------------------------------------------------------
@@ -674,7 +683,25 @@ void Panel::draw(cairo_t* cr, Shared& shared, const PanelState& state) {
   if (state.presetOpen) {
     drawPresetList(cr, shared, state);
   }
-
+  if (state.editParam >= 0) {
+    const ParamSpec& spec = kParamSpecs[state.editParam];
+    const double bx = 300, by = 250, bw = 440, bh = 92;
+    roundRect(cr, bx, by, bw, bh, 6);
+    setRgb(cr, {0.07, 0.075, 0.08}, 0.99);
+    cairo_fill(cr);
+    setRgb(cr, kAccent, 0.9);
+    cairo_set_line_width(cr, 1.5);
+    roundRect(cr, bx + 0.5, by + 0.5, bw - 1, bh - 1, 6);
+    cairo_stroke(cr);
+    char title[96];
+    std::snprintf(title, sizeof(title), "%s", spec.name);
+    text(cr, title, bx + 16, by + 24, 10, 0, kDim.r, kDim.g, kDim.b);
+    const std::string shown = state.editText + "|";
+    text(cr, shown.c_str(), bx + 16, by + 54, 18, 0, kText.r, kText.g,
+         kText.b);
+    text(cr, "Enter to apply  \u00b7  Esc to cancel", bx + 16, by + 76, 8, 0,
+         kDim.r, kDim.g, kDim.b);
+  }
 }
 
 void Panel::drawHeader(cairo_t* cr, const Shared& shared,
@@ -949,9 +976,33 @@ void Panel::drawWidget(cairo_t* cr, const Widget& w,
                        const Shared& shared) const {
   const ParamSpec& spec = kParamSpecs[w.param];
   switch (w.kind) {
-    case Kind::Knob:
-      drawKnob(cr, w, shared.get(w.param), spec);
+    case Kind::Knob: {
+      double value = shared.get(w.param);
+      const bool sync = shared.get(P_ECHO_SYNC) > 0.5;
+      const bool hostTempo =
+          shared.hostTempo.load(std::memory_order_relaxed);
+      if (w.param == P_TEMPO && sync && hostTempo) {
+        value = shared.bpm.load(std::memory_order_relaxed);
+      }
+      const bool syncedTime = w.param == P_ECHO_TIME && sync;
+      if (syncedTime) {
+        const double bpm = hostTempo
+                               ? shared.bpm.load(std::memory_order_relaxed)
+                               : shared.get(P_TEMPO);
+        const double beats = echoDivisionBeats(
+            static_cast<int>(shared.get(P_ECHO_DIV) + 0.5));
+        value = 60000.0 / std::max(1.0, bpm) * beats;
+        cairo_push_group(cr);
+        drawKnob(cr, w, value, spec);
+        cairo_pop_group_to_source(cr);
+        cairo_paint_with_alpha(cr, 0.48);
+        text(cr, "SYNC", w.x, w.y + w.r + 30, 8, 1, kAccent.r, kAccent.g,
+             kAccent.b);
+      } else {
+        drawKnob(cr, w, value, spec);
+      }
       break;
+    }
     case Kind::Toggle:
       drawToggle(cr, w, shared.get(w.param) > 0.5);
       break;
@@ -1404,6 +1455,10 @@ const Panel::Widget* Panel::find(uint32_t param, Kind kind) const {
 
 bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
                         bool fine) {
+  if (state.editParam >= 0) {
+    state.editParam = -1;
+    return true;
+  }
   if (state.presetOpen) {
     if (handlePresetClick(shared, state, x, y)) {
       return true;
@@ -1432,10 +1487,12 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
       continue;
     }
     if (w.kind == Kind::PageTab) {
+      hasLastClick_ = false;
       state.tab = static_cast<int>(w.value);
       return true;
     }
     if (w.kind == Kind::Button) {
+      hasLastClick_ = false;
       if (w.param == kCompareButton) {
         shared.compare.store(!shared.compare.load(std::memory_order_relaxed),
                              std::memory_order_relaxed);
@@ -1453,16 +1510,35 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
       return true;
     }
     if (w.kind == Kind::Toggle || w.kind == Kind::Power) {
+      hasLastClick_ = false;
       shared.set(w.param, shared.get(w.param) > 0.5 ? 0.0 : 1.0);
       state.presetDirty = true;
       return true;
     }
     if (w.kind == Kind::Choice) {
+      hasLastClick_ = false;
       shared.set(w.param, w.value);
       state.presetDirty = true;
       return true;
     }
     if (w.kind == Kind::Knob || w.kind == Kind::Fader) {
+      if ((w.param == P_TEMPO &&
+           shared.get(P_ECHO_SYNC) > 0.5 &&
+           shared.hostTempo.load(std::memory_order_relaxed)) ||
+          (w.param == P_ECHO_TIME && shared.get(P_ECHO_SYNC) > 0.5)) {
+        return true;
+      }
+      const auto now = std::chrono::steady_clock::now();
+      if (hasLastClick_ && lastClickParam_ == w.param &&
+          now - lastClickTime_ < std::chrono::milliseconds(350)) {
+        shared.set(w.param, kParamSpecs[w.param].def);
+        state.presetDirty = true;
+        hasLastClick_ = false;
+        return true;
+      }
+      lastClickParam_ = w.param;
+      lastClickTime_ = now;
+      hasLastClick_ = true;
       dragParam_ = static_cast<int>(w.param);
       dragKind_ = w.kind;
       dragStartY_ = y;
@@ -1475,6 +1551,72 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
   return false;
 }
 
+bool Panel::contextDown(Shared& shared, PanelState& state, double x, double y) {
+  buildLayout(shared, state.tab);
+  for (const Widget& w : widgets_) {
+    if ((w.kind != Kind::Knob && w.kind != Kind::Fader) || !hit(w, x, y)) {
+      continue;
+    }
+    const ParamSpec& spec = kParamSpecs[w.param];
+    if (spec.stepped) {
+      return false;
+    }
+    if (w.param == P_ECHO_TIME && shared.get(P_ECHO_SYNC) > 0.5) {
+      return false;
+    }
+    if (w.param == P_TEMPO && shared.get(P_ECHO_SYNC) > 0.5 &&
+        shared.hostTempo.load(std::memory_order_relaxed)) {
+      return false;
+    }
+    char buf[32];
+    std::snprintf(buf, sizeof(buf), "%.6g", shared.get(w.param));
+    state.editParam = static_cast<int>(w.param);
+    state.editText = buf;
+    return true;
+  }
+  return false;
+}
+
+bool Panel::keyEvent(Shared& shared, PanelState& state, int key,
+                     const char* text) {
+  if (state.editParam < 0) {
+    return false;
+  }
+  if (key == 27) {  // Escape
+    state.editParam = -1;
+    return true;
+  }
+  if (key == 8) {  // Backspace
+    if (!state.editText.empty()) {
+      state.editText.pop_back();
+    }
+    return true;
+  }
+  if (key == 13) {  // Enter
+    const char* begin = state.editText.c_str();
+    char* end = nullptr;
+    const double parsed = std::strtod(begin, &end);
+    if (end != begin && std::isfinite(parsed)) {
+      const ParamSpec& spec = kParamSpecs[state.editParam];
+      shared.set(static_cast<uint32_t>(state.editParam),
+                 std::min(std::max(parsed, spec.min), spec.max));
+      state.presetDirty = true;
+    }
+    state.editParam = -1;
+    return true;
+  }
+  if (text && text[0]) {
+    for (const char* c = text; *c; ++c) {
+      if ((*c >= '0' && *c <= '9') || *c == '.' || *c == '-' || *c == '+') {
+        if (state.editText.size() < 16) {
+          state.editText.push_back(*c);
+        }
+      }
+    }
+  }
+  return true;
+}
+
 bool Panel::pointerMove(Shared& shared, PanelState& state, double x, double y,
                         bool fine) {
   if (dragParam_ < 0) {
@@ -1482,6 +1624,9 @@ bool Panel::pointerMove(Shared& shared, PanelState& state, double x, double y,
   }
   if (dragKind_ == Kind::Button) {
     return true;
+  }
+  if (std::fabs(y - dragStartY_) > 3.0 || std::fabs(x - dragStartX_) > 3.0) {
+    hasLastClick_ = false;
   }
   const ParamSpec& spec = kParamSpecs[dragParam_];
   const double range = spec.max - spec.min;
@@ -1519,8 +1664,14 @@ bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
     if (!hit(w, x, y) || w.kind == Kind::PageTab || w.kind == Kind::Button) {
       continue;
     }
+    if ((w.param == P_TEMPO && shared.get(P_ECHO_SYNC) > 0.5 &&
+         shared.hostTempo.load(std::memory_order_relaxed)) ||
+        (w.param == P_ECHO_TIME && shared.get(P_ECHO_SYNC) > 0.5)) {
+      return true;
+    }
     const ParamSpec& spec = kParamSpecs[w.param];
     if (w.kind == Kind::Toggle || w.kind == Kind::Power) {
+      hasLastClick_ = false;
       shared.set(w.param, shared.get(w.param) > 0.5 ? 0.0 : 1.0);
     } else if (w.kind == Kind::Choice) {
       const int n = std::max(1, static_cast<int>(spec.max - spec.min + 1));
@@ -1550,6 +1701,7 @@ void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
     shared.set(i, p.values[i]);
   }
   shared.compare.store(false, std::memory_order_relaxed);
+  state.editParam = -1;
   state.presetIndex = index;
   state.presetDirty = false;
 }

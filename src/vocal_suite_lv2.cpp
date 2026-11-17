@@ -44,6 +44,8 @@ enum Port : uint32_t {
   PORT_INPUT_LEARN_PEAK,
   PORT_SIB_LEARN_HZ,
   PORT_SIB_LEARN_VALID,
+  PORT_HOST_BPM,
+  PORT_HOST_TEMPO,
   PORT_LATENCY,
   PORT_TIME,
   PORT_COUNT
@@ -83,6 +85,8 @@ struct Plugin {
   float* inputLearnPeak = nullptr;
   float* sibLearnHz = nullptr;
   float* sibLearnValid = nullptr;
+  float* hostBpm = nullptr;
+  float* hostTempo = nullptr;
   float* latency = nullptr;
 
   vocal::InlineDisplay display;
@@ -139,6 +143,8 @@ void connectPort(LV2_Handle handle, uint32_t port, void* data) {
     case PORT_SIB_LEARN_VALID:
       p->sibLearnValid = static_cast<float*>(data);
       break;
+    case PORT_HOST_BPM: p->hostBpm = static_cast<float*>(data); break;
+    case PORT_HOST_TEMPO: p->hostTempo = static_cast<float*>(data); break;
     case PORT_LATENCY: p->latency = static_cast<float*>(data); break;
     case PORT_TIME:
       p->timePort = static_cast<const LV2_Atom_Sequence*>(data);
@@ -176,6 +182,8 @@ void updateTempo(Plugin* p) {
       const float bpm = reinterpret_cast<const LV2_Atom_Float*>(bpmAtom)->body;
       if (std::isfinite(bpm) && bpm > 1.0f) {
         p->engine.setTempo(bpm, true);
+        p->shared.bpm.store(bpm, std::memory_order_relaxed);
+        p->shared.hostTempo.store(true, std::memory_order_relaxed);
       }
     }
   }
@@ -229,7 +237,6 @@ void run(LV2_Handle handle, uint32_t frames) {
   }
   updateTempo(p);
   p->engine.setControls(vocal::controlsFrom(p->shared));
-
   if (p->audioOutL != p->audioInL) {
     std::memcpy(p->audioOutL, p->audioInL, frames * sizeof(float));
   }
@@ -253,6 +260,8 @@ void run(LV2_Handle handle, uint32_t frames) {
   if (p->sibLearnValid) {
     *p->sibLearnValid = p->meters.sibLearnValid ? 1.0f : 0.0f;
   }
+  if (p->hostBpm) *p->hostBpm = p->meters.bpm;
+  if (p->hostTempo) *p->hostTempo = p->meters.hostTempo ? 1.0f : 0.0f;
   if (p->latency) {
     *p->latency = static_cast<float>(p->engine.latencySamples());
   }

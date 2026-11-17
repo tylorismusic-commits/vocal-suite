@@ -129,7 +129,7 @@ int main() {
   std::printf("    <#comp_gr> , <#sib_gr> , <#harsh_gr> , <#lim_gr> ,\n");
   std::printf("    <#in_l> , <#in_r> , <#out_l> , <#out_r> ,\n");
   std::printf("    <#input_learn_peak> , <#sib_learn_hz> , <#sib_learn_valid> ,\n");
-  std::printf("    <#latency> , <#time> ;\n");
+  std::printf("    <#host_bpm> , <#host_tempo> , <#latency> , <#time> ;\n");
   std::printf("  ui:ui <#ui> .\n\n");
 
   std::printf("<#ui> a ui:X11UI ;\n");
@@ -178,7 +178,19 @@ int main() {
     std::printf("  lv2:default -120 ;\n");
     std::printf("  units:unit units:db .\n\n");
   }
-  const uint32_t latencyIndex = 4 + vocal::P_COUNT + 14;
+  std::printf("<#host_bpm> a lv2:OutputPort, lv2:ControlPort ;\n");
+  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 14);
+  std::printf("  lv2:symbol \"host_bpm\" ;\n");
+  std::printf("  lv2:name \"Host BPM\" ;\n");
+  std::printf("  lv2:minimum 20 ; lv2:maximum 400 ; lv2:default 120 ;\n");
+  std::printf("  units:unit units:bpm .\n\n");
+  std::printf("<#host_tempo> a lv2:OutputPort, lv2:ControlPort ;\n");
+  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 15);
+  std::printf("  lv2:symbol \"host_tempo\" ;\n");
+  std::printf("  lv2:name \"Host Tempo Active\" ;\n");
+  std::printf("  lv2:minimum 0 ; lv2:maximum 1 ; lv2:default 0 ;\n");
+  std::printf("  lv2:portProperty lv2:toggled .\n\n");
+  const uint32_t latencyIndex = 4 + vocal::P_COUNT + 16;
   std::printf("<#latency> a lv2:OutputPort, lv2:ControlPort ;\n");
   std::printf("  lv2:index %u ;\n", latencyIndex);
   std::printf("  lv2:symbol \"latency\" ;\n");
@@ -188,7 +200,7 @@ int main() {
   std::printf("  lv2:maximum 0 ;\n");
   std::printf("  lv2:default 0 .\n\n");
   std::printf("<#time> a lv2:InputPort, atom:Sequence ;\n");
-  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 15);
+  std::printf("  lv2:index %u ;\n", 4 + vocal::P_COUNT + 17);
   std::printf("  lv2:symbol \"time\" ;\n");
   std::printf("  lv2:name \"Time\" ;\n");
   std::printf("  lv2:designation time:position ;\n");

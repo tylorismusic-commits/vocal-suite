@@ -77,10 +77,13 @@ point. **Modern Metal Lead** is the flagship rock/metal preset.
 - **DE-ESS** — two dynamic peaking bands: sibilance (4–10 kHz) and harshness
   (1.5–5 kHz). **LEARN** finds the dominant sibilance band.
 - **ECHO** — tempo-synced or free stereo delay, 20 ms–4 s, ducking, width,
-  modulation and LoFi feedback filtering.
+  modulation and LoFi feedback filtering. With Sync on, the Tempo knob reads
+  the host BPM and Time becomes a display-only readout of the selected
+  division.
 - **SPACE** — eight-line FDN plate, room and hall with size, decay, pre-delay,
   tone, width, ducking and mix.
-- **OUT** — ±18 dB trim and a zero-latency safety limiter at −0.3 dBFS.
+- **OUT** — ±18 dB trim, a zero-latency safety limiter with a −6…0 dBFS
+  ceiling control, and a limiter GR meter.
 
 ## Presets
 
@@ -99,6 +102,9 @@ artist or song names.
 - **CLAP** and **LV2** for Linux x86_64.
 - Stereo in/out; mono input is duplicated.
 - **Zero latency.** No oversampling and no lookahead. DRIVE uses ADAA.
+- Host tempo sync in CLAP and LV2; the ECHO division follows the project BPM.
+- Right-click a knob/fader to type a value; double-click to reset it.
+  Click COMPARE to toggle the dry monitor.
 - The output limiter is a safety clip, not a true-peak mastering limiter.
 - Not in 0.1.0: gate/expander, doubler/width module, external sidechain,
   oversampling, VST3/AAX, user preset saving, IR loading.

@@ -124,6 +124,7 @@ public:
     shared_.compare.store(false, std::memory_order_relaxed);
     shared_.inputLearnActive.store(false, std::memory_order_relaxed);
     shared_.sibLearnActive.store(false, std::memory_order_relaxed);
+    state_.editParam = -1;
     std::lock_guard<std::mutex> lock(mutex_);
     opened_ = false;
   }
@@ -289,12 +290,34 @@ private:
           panel_.wheel(shared_, state_, x, y, -1.0);
         } else if (ev.xbutton.button == Button1) {
           panel_.pointerDown(shared_, state_, x, y, fine);
+        } else if (ev.xbutton.button == Button3) {
+          if (panel_.contextDown(shared_, state_, x, y) && display_ &&
+              window_) {
+            XSetInputFocus(display_, window_, RevertToParent, CurrentTime);
+            XFlush(display_);
+          }
         }
         break;
       }
       case ButtonRelease:
         panel_.pointerUp(shared_);
         break;
+      case KeyPress: {
+        char buf[8] = {};
+        KeySym ks = 0;
+        XLookupString(const_cast<XKeyEvent*>(&ev.xkey), buf, sizeof(buf) - 1,
+                      &ks, nullptr);
+        int key = 0;
+        if (ks == XK_BackSpace) {
+          key = 8;
+        } else if (ks == XK_Return || ks == XK_KP_Enter) {
+          key = 13;
+        } else if (ks == XK_Escape) {
+          key = 27;
+        }
+        panel_.keyEvent(shared_, state_, key, buf);
+        break;
+      }
       case MotionNotify: {
         const bool fine = (ev.xmotion.state & ShiftMask) != 0;
         panel_.pointerMove(shared_, state_, ev.xmotion.x / s, ev.xmotion.y / s,
@@ -762,6 +785,7 @@ clap_process_status pluginProcess(const clap_plugin_t* p, const clap_process_t* 
     s->engine.setTempo(static_cast<float>(proc->transport->tempo), true);
     s->shared.bpm.store(static_cast<float>(proc->transport->tempo),
                         std::memory_order_relaxed);
+    s->shared.hostTempo.store(true, std::memory_order_relaxed);
   }
 
   if (proc->audio_inputs_count == 0 || proc->audio_outputs_count == 0) {
@@ -800,6 +824,7 @@ clap_process_status pluginProcess(const clap_plugin_t* p, const clap_process_t* 
   s->shared.outPeakLDb.store(s->meters.outPeakLDb, std::memory_order_relaxed);
   s->shared.outPeakRDb.store(s->meters.outPeakRDb, std::memory_order_relaxed);
   s->shared.bpm.store(s->meters.bpm, std::memory_order_relaxed);
+  s->shared.hostTempo.store(s->meters.hostTempo, std::memory_order_relaxed);
   s->shared.inputLearnPeakDb.store(s->meters.inputLearnPeakDb,
                                    std::memory_order_relaxed);
   s->shared.sibLearnHz.store(s->meters.sibLearnHz, std::memory_order_relaxed);

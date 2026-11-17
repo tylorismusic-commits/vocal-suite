@@ -16,6 +16,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
 #include <cairo-xlib.h>
 
 #include <algorithm>
@@ -133,6 +134,12 @@ struct Ui {
         } else if (ev.xbutton.button == Button1) {
           panel.pointerDown(shared, state, toLogicalX(ev.xbutton.x),
                             toLogicalY(ev.xbutton.y), fine);
+        } else if (ev.xbutton.button == Button3) {
+          if (panel.contextDown(shared, state, toLogicalX(ev.xbutton.x),
+                                toLogicalY(ev.xbutton.y))) {
+            XSetInputFocus(dpy, win, RevertToParent, CurrentTime);
+            XFlush(dpy);
+          }
         }
         dirty = true;
         break;
@@ -145,6 +152,23 @@ struct Ui {
         const bool fine = (ev.xmotion.state & ShiftMask) != 0;
         panel.pointerMove(shared, state, toLogicalX(ev.xmotion.x),
                           toLogicalY(ev.xmotion.y), fine);
+        dirty = true;
+        break;
+      }
+      case KeyPress: {
+        char buf[8] = {};
+        KeySym ks = 0;
+        XLookupString(const_cast<XKeyEvent*>(&ev.xkey), buf, sizeof(buf) - 1,
+                      &ks, nullptr);
+        int key = 0;
+        if (ks == XK_BackSpace) {
+          key = 8;
+        } else if (ks == XK_Return || ks == XK_KP_Enter) {
+          key = 13;
+        } else if (ks == XK_Escape) {
+          key = 27;
+        }
+        panel.keyEvent(shared, state, key, buf);
         dirty = true;
         break;
       }
@@ -392,6 +416,8 @@ void uiPortEvent(LV2UI_Handle handle, uint32_t port, uint32_t size,
     case kMeterBase + 8: ui->shared.inputLearnPeakDb.store(v); break;
     case kMeterBase + 9: ui->shared.sibLearnHz.store(v); break;
     case kMeterBase + 10: ui->shared.sibLearnValid.store(v > 0.5f); break;
+    case kMeterBase + 11: ui->shared.bpm.store(v); break;
+    case kMeterBase + 12: ui->shared.hostTempo.store(v > 0.5f); break;
     default: break;
   }
 }
