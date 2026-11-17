@@ -201,8 +201,8 @@ int main() {
   // Limiter ceiling knob is interactive.
   state.tab = 7;
   const double ceilingBefore = shared.get(P_LIMIT_CEILING);
-  panel.pointerDown(shared, state, 650, 390, false);
-  panel.pointerMove(shared, state, 650, 360, false);
+  panel.pointerDown(shared, state, 700, 390, false);
+  panel.pointerMove(shared, state, 700, 360, false);
   panel.pointerUp(shared);
   assert(std::fabs(shared.get(P_LIMIT_CEILING) - ceilingBefore) > 1.0e-6);
 
