@@ -264,9 +264,12 @@ public:
       values_[p].store(kParamSpecs[p].def, std::memory_order_relaxed);
       dirty_[p].store(false, std::memory_order_relaxed);
     }
-    for (auto* m : {&compGrDb, &sibGrDb, &harshGrDb, &limGrDb, &inPeakDb,
-                    &outPeakDb, &inPeakLDb, &inPeakRDb, &outPeakLDb,
-                    &outPeakRDb}) {
+    compGrDb.store(0.0f, std::memory_order_relaxed);
+    sibGrDb.store(0.0f, std::memory_order_relaxed);
+    harshGrDb.store(0.0f, std::memory_order_relaxed);
+    limGrDb.store(0.0f, std::memory_order_relaxed);
+    for (auto* m : {&inPeakDb, &outPeakDb, &inPeakLDb, &inPeakRDb,
+                    &outPeakLDb, &outPeakRDb}) {
       m->store(-120.0f, std::memory_order_relaxed);
     }
     bpm.store(120.0f, std::memory_order_relaxed);

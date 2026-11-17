@@ -259,7 +259,6 @@ private:
   int maxSamples_ = 12000;
   int preSize_ = 0;
   int preWrite_ = 0;
-  float preSamples_ = 0.0f;
   Line lineL_[8], lineR_[8];
   Allpass apL_[4], apR_[4];
   std::vector<float> preL_, preR_;
@@ -269,8 +268,6 @@ private:
   float dampL_[8] = {};
   float dampR_[8] = {};
   float dampG_ = 0.3f;
-  float width_ = 0.7f;
-  float duck_ = 0.4f;
   float diffusion_ = 0.5f;
   float modPhase_ = 0.0f;
   float modInc_ = 0.0f;
@@ -279,7 +276,6 @@ private:
   Smoothed widthS_;
   Smoothed duckS_;
   Smoothed preS_;
-  Smoothed decaySmooth_;
   bool on_ = false;
   int mode_ = 0;
 };

@@ -110,6 +110,13 @@ public:
     bufferR_[write_] = dryR + xR;
     write_ = (write_ + 1) % maxSamples_;
 
+    // Width 0 collapses the repeats to mono; width 1 keeps the full
+    // cross-fed stereo image.
+    const float widthOut = width_.next();
+    const float mid = 0.5f * (wetL + wetR);
+    wetL = mid + (wetL - mid) * widthOut;
+    wetR = mid + (wetR - mid) * widthOut;
+
     const float duck = duck_.next();
     const float duckGain = 1.0f - duck * clampf(duckEnv_ * 8.0f, 0.0f, 1.0f);
     const float mix = mix_.next() * duckGain;

@@ -45,6 +45,7 @@ const Rgb kMeterFace{0.055, 0.058, 0.060};
 constexpr uint32_t kCompareButton = P_COUNT;
 constexpr uint32_t kLearnLevelButton = P_COUNT + 1;
 constexpr uint32_t kLearnSibButton = P_COUNT + 2;
+constexpr uint32_t kFlatButton = P_COUNT + 3;
 
 const char* const kPageNames[8] = {"INPUT", "COMP", "TONE", "DRIVE",
                                    "DE-ESS", "ECHO", "SPACE", "OUTPUT"};
@@ -258,6 +259,17 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
     widgets_.push_back(t);
   }
 
+  {
+    Widget railFader{};
+    railFader.kind = Kind::Fader;
+    railFader.param = P_OUTPUT;
+    railFader.x = 946;
+    railFader.y = 466;
+    railFader.w = 24;
+    railFader.h = 110;
+    widgets_.push_back(railFader);
+  }
+
   if (tab < 7) {
     Widget on{};
     on.kind = Kind::Toggle;
@@ -365,7 +377,7 @@ void Panel::pageComp() {
   autoM.kind = Kind::Toggle;
   autoM.param = P_COMP_AUTO;
   autoM.x = 748;
-  autoM.y = 250;
+  autoM.y = 180;
   autoM.w = 96;
   autoM.h = 26;
   autoM.label = "AUTO";
@@ -446,10 +458,19 @@ void Panel::pageTone() {
   Widget air{};
   air.kind = Kind::Knob;
   air.param = P_AIR;
-  air.x = 760;
+  air.x = 800;
   air.y = 470;
-  air.r = 36;
+  air.r = 32;
   widgets_.push_back(air);
+  Widget flat{};
+  flat.kind = Kind::Button;
+  flat.param = kFlatButton;
+  flat.x = 780;
+  flat.y = 550;
+  flat.w = 76;
+  flat.h = 24;
+  flat.label = "FLAT";
+  widgets_.push_back(flat);
 }
 
 void Panel::pageDrive() {
@@ -647,7 +668,7 @@ void Panel::pageOut() {
   Widget ceiling{};
   ceiling.kind = Kind::Knob;
   ceiling.param = P_LIMIT_CEILING;
-  ceiling.x = 650;
+  ceiling.x = 700;
   ceiling.y = 390;
   ceiling.r = 30;
   widgets_.push_back(ceiling);
@@ -795,7 +816,10 @@ void Panel::drawChain(cairo_t* cr, const Shared& shared,
       continue;
     }
     const bool active = static_cast<int>(w.value) == state.tab;
-    drawPageTab(cr, w, active, shared.get(w.param) > 0.5);
+    const bool on = static_cast<int>(w.value) == 0
+                        ? shared.get(P_POWER) > 0.5
+                        : shared.get(w.param) > 0.5;
+    drawPageTab(cr, w, active, on);
     if (w.value < 7) {
       text(cr, "\u203a", w.x + w.w + 3, w.y + 33, 20, 0, kDim.r, kDim.g,
            kDim.b);
@@ -859,26 +883,63 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
                kDim.b);
         }
       }
+      drawHistory(cr, state.inHistory, state.inHistoryHead, 60, 430, 680, 120,
+                  "INPUT HISTORY  ·  8 s", -18.0, -12.0);
       text(cr, "Set the loudest phrase inside the green zone, then cut rumble with the HPF.",
-           60, 560, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 1:
       text(cr, "COMPRESSOR", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
-      drawCompCurve(cr, shared, 60, 430, 500, 130);
+      drawCompCurve(cr, shared, 60, 420, 640, 150);
+      drawGrBar(cr, 748, 220, 50, 200, shared.compGrDb.load(), 24.0,
+                "COMP GR");
+      char grText[32];
+      std::snprintf(grText, sizeof(grText), "%.1f dB",
+                    shared.compGrDb.load());
+      text(cr, grText, 773, 450, 10, 1, kAccent.r, kAccent.g, kAccent.b);
       text(cr, "Opto is smooth, FET is fast and aggressive, VCA is controlled and modern.",
-           60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 2:
       text(cr, "TONE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
-      drawEqCurve(cr, shared, 60, 155, 520, 180);
+      drawEqCurve(cr, shared, 60, 155, 670, 180);
       text(cr, "Use broad strokes. Flat is a true bypass.",
            60, 588, 9, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 3:
       text(cr, "DRIVE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
-      drawDriveCurve(cr, shared, 60, 430, 500, 130);
+      drawDriveCurve(cr, shared, 60, 430, 700, 130);
+      {
+        const int model = std::clamp(
+            static_cast<int>(shared.get(P_DRIVE_MODEL) + 0.5), 0, 3);
+        static const char* const kNames[4] = {"VALVE", "CONSOLE", "TAPE",
+                                              "CLIP"};
+        static const char* const kLines[4][2] = {
+            {"Weight and even harmonics.", "Smooth, thick, vocal-friendly."},
+            {"Edge and midrange attitude.", "Op-amp colour without fizz."},
+            {"Soft top and gentle glue.", "Classic tape-style rounding."},
+            {"Hard edge for screams.", "Aggressive, dense, immediate."}};
+        roundRect(cr, 620, 220, 240, 150, 5);
+        setRgb(cr, {0.135, 0.140, 0.150});
+        cairo_fill(cr);
+        setRgb(cr, kEdge);
+        cairo_set_line_width(cr, 1);
+        roundRect(cr, 620.5, 220.5, 239, 149, 5);
+        cairo_stroke(cr);
+        text(cr, "VOICING", 636, 246, 8, 0, kDim.r, kDim.g, kDim.b);
+        text(cr, kNames[model], 636, 274, 16, 0, kAccent.r, kAccent.g,
+             kAccent.b);
+        text(cr, kLines[model][0], 636, 302, 9, 0, kText.r, kText.g,
+             kText.b);
+        text(cr, kLines[model][1], 636, 320, 9, 0, kText.r, kText.g,
+             kText.b);
+        cairo_arc(cr, 642, 348, 3.5, 0, 2 * kPiD);
+        setRgb(cr, kGreen);
+        cairo_fill(cr);
+        text(cr, "AUTO GAIN", 652, 352, 8, 0, kGreen.r, kGreen.g, kGreen.b);
+      }
       text(cr, "Valve adds weight, Console adds edge, Tape softens, Clip is for screams.",
-           60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 4:
       text(cr, "DE-ESS", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
@@ -886,18 +947,110 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       text(cr, "HARSHNESS", 630, 230, 9, 1, kDim.r, kDim.g, kDim.b);
       drawGrBar(cr, 790, 240, 22, 110, shared.sibGrDb.load(), 18.0, "SIB");
       drawGrBar(cr, 822, 240, 22, 110, shared.harshGrDb.load(), 18.0, "HRS");
+      {
+        const double gx = 60, gy = 430, gw = 760, gh = 110;
+        roundRect(cr, gx, gy, gw, gh, 4);
+        setRgb(cr, {0.055, 0.060, 0.065});
+        cairo_fill(cr);
+        auto freqX = [&](double hz) {
+          return gx + gw * std::log(hz / 1000.0) / std::log(12.0);
+        };
+        // Band shading.
+        const double harshLo = freqX(1500.0);
+        const double harshHi = freqX(5000.0);
+        const double sibLo = freqX(4000.0);
+        const double sibHi = freqX(10000.0);
+        setRgb(cr, kAmber, 0.10);
+        cairo_rectangle(cr, harshLo, gy + 8, harshHi - harshLo, gh - 24);
+        cairo_fill(cr);
+        setRgb(cr, kAccent, 0.12);
+        cairo_rectangle(cr, sibLo, gy + 8, sibHi - sibLo, gh - 24);
+        cairo_fill(cr);
+        setRgb(cr, kDim, 0.25);
+        cairo_set_line_width(cr, 1);
+        const double marks[7] = {1000, 2000, 4000, 6000, 8000, 10000, 12000};
+        const char* markLabels[7] = {"1k", "2k", "4k", "6k", "8k", "10k",
+                                     "12k"};
+        for (int i = 0; i < 7; ++i) {
+          const double mx = freqX(marks[i]);
+          cairo_move_to(cr, mx, gy + 8);
+          cairo_line_to(cr, mx, gy + gh - 16);
+          cairo_stroke(cr);
+          text(cr, markLabels[i], mx, gy + gh - 4, 7, 1, kDim.r, kDim.g,
+               kDim.b);
+        }
+        const double sx = freqX(shared.get(P_SIB_FREQ));
+        const double hx = freqX(shared.get(P_HARSH_FREQ));
+        setRgb(cr, kAccent, 0.95);
+        cairo_set_line_width(cr, 2);
+        cairo_move_to(cr, sx, gy + 12);
+        cairo_line_to(cr, sx, gy + gh - 22);
+        cairo_stroke(cr);
+        setRgb(cr, kAmber, 0.95);
+        cairo_move_to(cr, hx, gy + 12);
+        cairo_line_to(cr, hx, gy + gh - 22);
+        cairo_stroke(cr);
+        char sib[32];
+        char hrs[32];
+        std::snprintf(sib, sizeof(sib), "SIB %.1f k", shared.get(P_SIB_FREQ) / 1000.0);
+        std::snprintf(hrs, sizeof(hrs), "HRS %.1f k", shared.get(P_HARSH_FREQ) / 1000.0);
+        text(cr, sib, sx + 6, gy + 22, 8, 0, kAccent.r, kAccent.g,
+             kAccent.b);
+        text(cr, hrs, hx + 6, gy + 36, 8, 0, kAmber.r, kAmber.g, kAmber.b);
+      }
       text(cr, "Start with amount 2-4. Raise until the S's stop poking out.",
-           60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 5:
       text(cr, "ECHO", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
+      {
+        const double gx = 60, gy = 430, gw = 720, gh = 110;
+        roundRect(cr, gx, gy, gw, gh, 4);
+        setRgb(cr, {0.055, 0.060, 0.065});
+        cairo_fill(cr);
+        setRgb(cr, kDim, 0.22);
+        cairo_set_line_width(cr, 1);
+        cairo_move_to(cr, gx + 8, gy + gh - 24);
+        cairo_line_to(cr, gx + gw - 8, gy + gh - 24);
+        cairo_stroke(cr);
+        double delayMs = shared.get(P_ECHO_TIME);
+        if (shared.get(P_ECHO_SYNC) > 0.5) {
+          const double bpm =
+              shared.hostTempo.load(std::memory_order_relaxed)
+                  ? shared.bpm.load(std::memory_order_relaxed)
+                  : shared.get(P_TEMPO);
+          const double beats = echoDivisionBeats(
+              static_cast<int>(shared.get(P_ECHO_DIV) + 0.5));
+          delayMs = 60000.0 / std::max(1.0, bpm) * beats;
+        }
+        const double feedback = shared.get(P_ECHO_FEEDBACK) / 100.0;
+        const double width = shared.get(P_ECHO_WIDTH) / 100.0;
+        const double windowMs = 4000.0;
+        for (int n = 1; n <= 8; ++n) {
+          const double t = n * delayMs;
+          if (t > windowMs) break;
+          const double amp = std::pow(std::max(0.05, feedback), n - 1);
+          const double px = gx + 8 + (gw - 16) * (t / windowMs);
+          const double hgt = (gh - 34) * std::max(0.12, amp);
+          setRgb(cr, (width > 0.5 && (n & 1)) ? kAmber : kAccent, 0.9);
+          cairo_rectangle(cr, px - 2, gy + gh - 24 - hgt, 4, hgt);
+          cairo_fill(cr);
+        }
+        text(cr, "TAPS  ·  4 s window", gx + 10, gy + 12, 8, 0, kDim.r,
+             kDim.g, kDim.b);
+        text(cr, "0 s", gx + 10, gy + gh - 8, 7, 0, kDim.r, kDim.g, kDim.b);
+        text(cr, "2 s", gx + gw * 0.5, gy + gh - 8, 7, 1, kDim.r, kDim.g,
+             kDim.b);
+        text(cr, "4 s", gx + gw - 10, gy + gh - 8, 7, 2, kDim.r, kDim.g,
+             kDim.b);
+      }
       text(cr, "Tempo-synced by default. Duck keeps the repeats under the vocal.",
-           60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 6:
       text(cr, "SPACE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       {
-        const double gx = 60, gy = 400, gw = 520, gh = 140;
+        const double gx = 60, gy = 410, gw = 720, gh = 150;
         roundRect(cr, gx, gy, gw, gh, 4);
         setRgb(cr, {0.055, 0.060, 0.065});
         cairo_fill(cr);
@@ -924,6 +1077,11 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
         char buf[64];
         std::snprintf(buf, sizeof(buf), "RT60 %.1f s", decay);
         text(cr, buf, gx + gw - 12, gy + 18, 9, 2, kDim.r, kDim.g, kDim.b);
+        text(cr, "0 s", gx + 10, gy + gh - 6, 7, 0, kDim.r, kDim.g, kDim.b);
+        text(cr, "2 s", gx + gw * 0.5, gy + gh - 6, 7, 1, kDim.r, kDim.g,
+             kDim.b);
+        text(cr, "4 s", gx + gw - 10, gy + gh - 6, 7, 2, kDim.r, kDim.g,
+             kDim.b);
       }
       text(cr, "Plate is bright and dense, Room is tight, Hall is long.",
            60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
@@ -954,8 +1112,10 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
         }
       }
       drawGrBar(cr, 590, 260, 26, 140, shared.limGrDb.load(), 18.0, "LIMIT");
+      drawHistory(cr, state.outHistory, state.outHistoryHead, 330, 500, 460, 60,
+                  "OUTPUT HISTORY  ·  8 s", -12.0, -3.0);
       text(cr, "The limiter is a safety catch, not a mastering limiter.",
-           60, 575, 10, 0, kDim.r, kDim.g, kDim.b);
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
   }
 
@@ -1207,6 +1367,41 @@ void Panel::drawGrBar(cairo_t* cr, double x, double y, double w, double h,
   text(cr, label, x + w * 0.5, y + h + 13, 8, 1, kDim.r, kDim.g, kDim.b);
 }
 
+void Panel::drawHistory(cairo_t* cr, const float* history, int head,
+                        double x, double y, double w, double h,
+                        const char* label, double targetLo,
+                        double targetHi) const {
+  roundRect(cr, x, y, w, h, 4);
+  setRgb(cr, {0.055, 0.060, 0.065});
+  cairo_fill(cr);
+  setRgb(cr, kDim, 0.22);
+  cairo_set_line_width(cr, 1);
+  for (int i = 1; i < 4; ++i) {
+    const double gy = y + h * i / 4.0;
+    cairo_move_to(cr, x, gy);
+    cairo_line_to(cr, x + w, gy);
+    cairo_stroke(cr);
+  }
+  if (targetHi > targetLo) {
+    const double yLo = y + h * (1.0 - (targetHi + 60.0) / 60.0);
+    const double yHi = y + h * (1.0 - (targetLo + 60.0) / 60.0);
+    setRgb(cr, kGreen, 0.12);
+    cairo_rectangle(cr, x + 2, yLo, w - 4, yHi - yLo);
+    cairo_fill(cr);
+  }
+  setRgb(cr, kAccent, 0.95);
+  cairo_set_line_width(cr, 1.6);
+  for (int i = 0; i < PanelState::kHistory; ++i) {
+    const int idx = (head + i) % PanelState::kHistory;
+    const double db = std::clamp(history[idx], -60.0f, 0.0f);
+    const double px = x + w * i / (PanelState::kHistory - 1);
+    const double py = y + h * (1.0 - (db + 60.0) / 60.0);
+    if (i == 0) cairo_move_to(cr, px, py);
+    else cairo_line_to(cr, px, py);
+  }
+  cairo_stroke(cr);
+  text(cr, label, x + 8, y + 10, 7.5, 0, kDim.r, kDim.g, kDim.b);
+}
 void Panel::drawRightRail(cairo_t* cr, const Shared& shared,
                           const PanelState& state) const {
   (void)state;
@@ -1361,6 +1556,11 @@ void Panel::drawEqCurve(cairo_t* cr, const Shared& shared, double x, double y,
     }
   }
   cairo_stroke(cr);
+  const char* axis[5] = {"20", "100", "1k", "10k", "20k"};
+  for (int i = 0; i < 5; ++i) {
+    text(cr, axis[i], x + w * i / 4.0, y + h - 6, 7.5, 1, kDim.r, kDim.g,
+         kDim.b);
+  }
 }
 
 void Panel::drawCompCurve(cairo_t* cr, const Shared& shared, double x, double y,
@@ -1469,11 +1669,11 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
   if (y < 58 && x >= 72 && x <= 402) {
     if (x < 100) {
       const int n = presetCount();
-      state.presetIndex = (state.presetIndex - 1 + n) % n;
+      state.presetIndex = state.presetIndex <= 0 ? n - 1 : state.presetIndex - 1;
       applyPreset(shared, state, state.presetIndex);
     } else if (x > 374) {
       const int n = presetCount();
-      state.presetIndex = (state.presetIndex + 1) % n;
+      state.presetIndex = state.presetIndex < 0 ? 0 : (state.presetIndex + 1) % n;
       applyPreset(shared, state, state.presetIndex);
     } else {
       state.presetOpen = 1;
@@ -1506,6 +1706,12 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
         shared.sibLearnActive.store(true, std::memory_order_relaxed);
         state.sibLearning = true;
         state.sibLearnTicks = 60;
+      } else if (w.param == kFlatButton) {
+        shared.set(P_LOW_GAIN, 0.0);
+        shared.set(P_MID_GAIN, 0.0);
+        shared.set(P_HIGH_GAIN, 0.0);
+        shared.set(P_AIR, 0.0);
+        state.presetDirty = true;
       }
       return true;
     }
@@ -1552,6 +1758,9 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
 }
 
 bool Panel::contextDown(Shared& shared, PanelState& state, double x, double y) {
+  if (state.presetOpen || state.editParam >= 0) {
+    return false;
+  }
   buildLayout(shared, state.tab);
   for (const Widget& w : widgets_) {
     if ((w.kind != Kind::Knob && w.kind != Kind::Fader) || !hit(w, x, y)) {
@@ -1655,8 +1864,10 @@ void Panel::pointerUp(Shared& /*shared*/) {
 bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
                   double dy) {
   if (state.presetOpen) {
-    state.presetScroll =
-        std::max(0, state.presetScroll + (dy < 0 ? 1 : -1));
+    const int maxScroll =
+        std::max(0, static_cast<int>(visiblePresets(state).size()) - 10);
+    state.presetScroll = std::min(
+        maxScroll, std::max(0, state.presetScroll + (dy < 0 ? 1 : -1)));
     return true;
   }
   buildLayout(shared, state.tab);
@@ -1701,6 +1912,10 @@ void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
     shared.set(i, p.values[i]);
   }
   shared.compare.store(false, std::memory_order_relaxed);
+  shared.inputLearnActive.store(false, std::memory_order_relaxed);
+  shared.sibLearnActive.store(false, std::memory_order_relaxed);
+  state.inputLearning = false;
+  state.sibLearning = false;
   state.editParam = -1;
   state.presetIndex = index;
   state.presetDirty = false;
@@ -1847,6 +2062,7 @@ void Panel::tick(Shared& shared, PanelState& state) const {
       const double target = -12.0;
       const double next = shared.get(P_INPUT) + (target - peak);
       shared.set(P_INPUT, std::min(18.0, std::max(-18.0, next)));
+      state.presetDirty = true;
     }
     shared.inputLearnActive.store(false, std::memory_order_relaxed);
     state.inputLearning = false;
@@ -1855,6 +2071,7 @@ void Panel::tick(Shared& shared, PanelState& state) const {
     if (shared.sibLearnValid.load(std::memory_order_relaxed)) {
       shared.set(P_SIB_FREQ,
                  shared.sibLearnHz.load(std::memory_order_relaxed));
+      state.presetDirty = true;
     }
     shared.sibLearnActive.store(false, std::memory_order_relaxed);
     state.sibLearning = false;
@@ -1869,6 +2086,12 @@ void Panel::tick(Shared& shared, PanelState& state) const {
   state.limGr = shared.limGrDb.load(std::memory_order_relaxed);
   const float odb = std::max(state.outLevelL, state.outLevelR);
   state.outPeakHold = std::max(odb, state.outPeakHold - 0.15f);
+  state.inHistory[state.inHistoryHead] = state.inLevelL > state.inLevelR
+                                             ? state.inLevelL
+                                             : state.inLevelR;
+  state.inHistoryHead = (state.inHistoryHead + 1) % PanelState::kHistory;
+  state.outHistory[state.outHistoryHead] = odb;
+  state.outHistoryHead = (state.outHistoryHead + 1) % PanelState::kHistory;
 }
 
 } // namespace vocal

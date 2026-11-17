@@ -151,6 +151,37 @@ int main() {
     assert(std::fabs(peak - expected) < 200.0);
   }
 
+  // The de-esser must keep working when the host processes in small blocks;
+  // setControls() runs every block and must not reset the dynamic cut.
+  {
+    Controls c;
+    c.compOn = false;
+    c.toneOn = false;
+    c.driveOn = false;
+    c.deessOn = true;
+    c.sibFreq = 7000.0f;
+    c.sibAmount = 6.0f;
+    c.harshAmount = 0.0f;
+    c.echoOn = false;
+    c.spaceOn = false;
+    c.limitOn = false;
+    engine.setControls(c);
+    float maxGr = 0.0f;
+    for (int block = 0; block < 100; ++block) {
+      float l[64];
+      float r[64];
+      for (int i = 0; i < 64; ++i) {
+        const int n = block * 64 + i;
+        l[i] = r[i] =
+            0.10f * std::sin(2.0 * 3.141592653589793 * 6000.0 * n / 48000.0);
+      }
+      engine.setControls(c);
+      engine.process(l, r, 64, meters);
+      maxGr = std::max(maxGr, meters.sibGrDb);
+    }
+    assert(maxGr > 3.0f);
+  }
+
   // Limiter ceiling moves the output ceiling.
   {
     Controls c;

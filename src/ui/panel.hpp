@@ -16,6 +16,11 @@ constexpr int kPanelWidth = 1040;
 constexpr int kPanelHeight = 640;
 
 struct PanelState {
+  PanelState() {
+    for (float& v : inHistory) v = -120.0f;
+    for (float& v : outHistory) v = -120.0f;
+  }
+
   int tab = 0;             // 0 INPUT .. 7 OUT, UI-only
   int presetIndex = -1;
   bool presetDirty = false;
@@ -39,6 +44,11 @@ struct PanelState {
   int sibLearnTicks = 0;
   int editParam = -1;
   std::string editText;
+  static constexpr int kHistory = 240;
+  float inHistory[kHistory] = {};
+  int inHistoryHead = 0;
+  float outHistory[kHistory] = {};
+  int outHistoryHead = 0;
 };
 
 class Panel {
@@ -114,6 +124,9 @@ private:
                  double dbL, double dbR, const char* label) const;
   void drawGrBar(cairo_t* cr, double x, double y, double w, double h,
                  double grDb, double maxDb, const char* label) const;
+  void drawHistory(cairo_t* cr, const float* history, int head, double x,
+                   double y, double w, double h, const char* label,
+                   double targetLo, double targetHi) const;
   void drawEqCurve(cairo_t* cr, const Shared& shared, double x, double y,
                    double w, double h) const;
   void drawCompCurve(cairo_t* cr, const Shared& shared, double x, double y,

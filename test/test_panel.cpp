@@ -127,7 +127,7 @@ int main() {
 
   state.tab = 1;
   const double autoMakeup = shared.get(P_COMP_AUTO);
-  panel.pointerDown(shared, state, 796, 263, false);
+  panel.pointerDown(shared, state, 796, 193, false);
   assert(shared.get(P_COMP_AUTO) != autoMakeup);
 
   state.tab = 2;

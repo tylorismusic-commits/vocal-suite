@@ -31,8 +31,6 @@ public:
     harshFreq_ = c.harshFreq;
     sibDet_.set(sibFreq_, 0.55f, sr_);
     harshDet_.set(harshFreq_, 0.55f, sr_);
-    updateCut(bandSib_, sibFreq_, 0.0f);
-    updateCut(bandHarsh_, harshFreq_, 0.0f);
   }
 
   void process(float& l, float& r, float& sibGr, float& harshGr) noexcept {
@@ -101,13 +99,6 @@ private:
       counter = 0;
     }
   };
-
-  void updateCut(Band& b, float freq, float grDb) noexcept {
-    // Coefficients are updated at block rate or every 16 samples; the gain
-    // itself is smoothed per sample, so this is inaudible.
-    b.cut[0].peak(freq, -grDb, 1.0f, sr_);
-    b.cut[1].peak(freq, -grDb, 1.0f, sr_);
-  }
 
   float processBand(Band& band, SvfBp& det, float detect, float& l, float& r,
                     float amount, float freq) noexcept {
