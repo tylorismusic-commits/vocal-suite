@@ -600,9 +600,9 @@ void Panel::pageEcho() {
   Widget mixw{};
   mixw.kind = Kind::Knob;
   mixw.param = P_ECHO_MIX;
-  mixw.x = 810;
+  mixw.x = 835;
   mixw.y = 470;
-  mixw.r = 30;
+  mixw.r = 28;
   widgets_.push_back(mixw);
   Widget tempo{};
   tempo.kind = Kind::Knob;
@@ -641,9 +641,9 @@ void Panel::pageSpace() {
   Widget mixw{};
   mixw.kind = Kind::Knob;
   mixw.param = P_SPACE_MIX;
-  mixw.x = 810;
+  mixw.x = 835;
   mixw.y = 470;
-  mixw.r = 30;
+  mixw.r = 28;
   widgets_.push_back(mixw);
 }
 
