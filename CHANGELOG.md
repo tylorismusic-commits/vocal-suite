@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.1.0 — development build
+## 0.1.0-alpha.1 — first public alpha
+
+First public Linux alpha build.
 
 - Limiter ceiling control (−6…0 dBFS) on the OUTPUT page.
 - Right-click a knob/fader to type a value; double-click resets it.

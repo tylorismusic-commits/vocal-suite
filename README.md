@@ -15,7 +15,7 @@ processors; each stage has its own IN/OUT switch.
 
 ## Status
 
-`0.1.0` is a working development build:
+`0.1.0-alpha.1` is the first public alpha build:
 
 - CLAP and LV2 load and process audio.
 - The 1040×640 panel draws all eight pages, the chain strip, meters, preset
@@ -28,7 +28,7 @@ processors; each stage has its own IN/OUT switch.
 - `lv2_validate` reports zero errors.
 
 Still planned before a 1.0 release: final preset tuning against real vocal
-takes, full host matrix testing and CI publishing.
+takes and the full host matrix.
 
 ## Install
 
