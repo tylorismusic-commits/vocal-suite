@@ -110,7 +110,8 @@ artist or song names.
   Click COMPARE to toggle the dry monitor.
 - The output limiter is a safety clip, not a true-peak mastering limiter.
 - Not in 0.1.0: gate/expander, doubler/width module, external sidechain,
-  oversampling, VST3/AAX, user preset saving, IR loading.
+  oversampling, VST3/AAX, IR loading, and preset-aware double-click reset
+  (double-click currently restores the factory default).
 - ECHO and SPACE stop when their stage is switched out; tail-preserving bypass
   is a later refinement.
 
