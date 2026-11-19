@@ -1,5 +1,7 @@
 # Vocal Suite
 
+**Version 0.1.0-alpha.2** · GPL-3.0-or-later
+
 ![Vocal Suite](docs/vocal-suite.png)
 
 An eight-stage vocal strip for Linux, built for fast rock and metal vocals and

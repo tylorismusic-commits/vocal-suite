@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-alpha.2 — 2026-11-19
+
+- User preset bank: save, rename, duplicate, delete, export and drag-drop
+  import, alongside the 40 factory presets.
+- Preset files live in `~/.config/VocalSuite/presets` and export to
+  `~/Documents/Vocal Suite Presets`.
+
 ## 0.1.0-alpha.1 — first public alpha
 
 First public Linux alpha build.
