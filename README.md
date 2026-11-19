@@ -1,15 +1,19 @@
 # Vocal Suite
 
-**Version 0.1.0-alpha.2** · GPL-3.0-or-later
+**Version 0.2.0-alpha.1** · GPL-3.0-or-later
 
 ![Vocal Suite](docs/vocal-suite.png)
 
-An eight-stage vocal strip for Linux, built for fast rock and metal vocals and
+![Vocal Suite — gate](docs/vocal-gate.png)
+
+![Vocal Suite — doubler](docs/vocal-double.png)
+
+A ten-stage vocal strip for Linux, built for fast rock and metal vocals and
 usable on pop, rap, podcast and spoken word. One plugin, CLAP and LV2, with a
 single fixed serial chain.
 
 ```
-INPUT → COMP → TONE → DRIVE → DE-ESS → ECHO → SPACE → OUT
+INPUT → GATE → COMP → TONE → DRIVE → DE-ESS → DOUBLE → ECHO → SPACE → OUT
 ```
 
 Every stage is always in the chain. The tabs are pages, not separate
@@ -20,11 +24,13 @@ processors; each stage has its own IN/OUT switch.
 `0.1.0-alpha.1` is the first public alpha build:
 
 - CLAP and LV2 load and process audio.
-- The 1040×640 panel draws all eight pages, the chain strip, meters, preset
+- The 1040×640 panel draws all ten pages, the chain strip, meters, preset
   browser and filters.
-- 40 factory presets across Rock/Metal, Pop/Rap/Podcast, Screams, Clean and
+- 42 factory presets across Rock/Metal, Pop/Rap/Podcast, Screams, Clean and
   Utility, plus a user preset bank with save, rename, duplicate, delete, export
   and drag-drop import.
+- Stereo gate/expander before the compressor.
+- Doubler/width stage with short modulated delay taps.
 - Input level learn, sibilance-frequency learn and auto makeup.
 - Zero reported latency.
 - DSP tests, panel tests and CLAP/LV2 host load tests pass.
@@ -109,9 +115,9 @@ artist or song names.
 - Right-click a knob/fader to type a value; double-click to reset it.
   Click COMPARE to toggle the dry monitor.
 - The output limiter is a safety clip, not a true-peak mastering limiter.
-- Not in 0.1.0: gate/expander, doubler/width module, external sidechain,
-  oversampling, VST3/AAX, IR loading, and preset-aware double-click reset
-  (double-click currently restores the factory default).
+- Not in 0.2.0: external sidechain, oversampling, VST3/AAX and IR loading.
+- Double-click restores the active preset value, or the factory default when
+  no preset is selected.
 - ECHO and SPACE stop when their stage is switched out; tail-preserving bypass
   is a later refinement.
 

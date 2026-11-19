@@ -76,6 +76,16 @@ enum ParamId : uint32_t {
   P_OUTPUT,
   P_LIMIT_ON,
   P_LIMIT_CEILING,
+  P_GATE_ON,
+  P_GATE_THRESH,
+  P_GATE_RANGE,
+  P_GATE_ATTACK,
+  P_GATE_RELEASE,
+  P_DOUBLE_ON,
+  P_DOUBLE_AMOUNT,
+  P_DOUBLE_DELAY,
+  P_DOUBLE_WIDTH,
+  P_DOUBLE_MIX,
   P_COUNT
 };
 
@@ -249,6 +259,30 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      {}, 0.0, 1.0},
     {"limit_ceiling", "Ceiling", "Output", -6.0, 0.0, -0.3, false, false, false,
      "dB", {}, -1.0, -0.1},
+
+    // Gate / expander
+    {"gate_on", "Gate On", "Gate", 0.0, 1.0, 0.0, true, false, true, nullptr, {},
+     0.0, 1.0},
+    {"gate_thresh", "Threshold", "Gate", -70.0, -20.0, -45.0, false, false,
+     false, "dB", {}, -55.0, -35.0},
+    {"gate_range", "Range", "Gate", 0.0, 60.0, 30.0, false, false, false, "dB",
+     {}, 18.0, 45.0},
+    {"gate_attack", "Attack", "Gate", 0.1, 100.0, 2.0, false, false, false,
+     "ms", {}, 0.5, 10.0},
+    {"gate_release", "Release", "Gate", 10.0, 1000.0, 120.0, false, false,
+     false, "ms", {}, 60.0, 300.0},
+
+    // Doubler / width
+    {"double_on", "Double On", "Double", 0.0, 1.0, 0.0, true, false, true,
+     nullptr, {}, 0.0, 1.0},
+    {"double_amount", "Amount", "Double", 0.0, 100.0, 45.0, false, false, false,
+     "%", {}, 20.0, 70.0},
+    {"double_delay", "Delay", "Double", 8.0, 40.0, 18.0, false, false, false,
+     "ms", {}, 10.0, 28.0},
+    {"double_width", "Width", "Double", 0.0, 200.0, 130.0, false, false, false,
+     "%", {}, 80.0, 160.0},
+    {"double_mix", "Mix", "Double", 0.0, 100.0, 35.0, false, false, false, "%",
+     {}, 15.0, 60.0},
 };
 
 static_assert(sizeof(kParamSpecs) / sizeof(kParamSpecs[0]) == P_COUNT,
@@ -425,6 +459,18 @@ inline Controls controlsFrom(const Shared& s) {
   c.outputDb = static_cast<float>(s.get(P_OUTPUT));
   c.limitOn = s.get(P_LIMIT_ON) > 0.5;
   c.limitCeilingDb = static_cast<float>(s.get(P_LIMIT_CEILING));
+
+  c.gateOn = s.get(P_GATE_ON) > 0.5;
+  c.gateThresholdDb = static_cast<float>(s.get(P_GATE_THRESH));
+  c.gateRangeDb = static_cast<float>(s.get(P_GATE_RANGE));
+  c.gateAttackMs = static_cast<float>(s.get(P_GATE_ATTACK));
+  c.gateReleaseMs = static_cast<float>(s.get(P_GATE_RELEASE));
+
+  c.doubleOn = s.get(P_DOUBLE_ON) > 0.5;
+  c.doubleAmount = static_cast<float>(s.get(P_DOUBLE_AMOUNT));
+  c.doubleDelayMs = static_cast<float>(s.get(P_DOUBLE_DELAY));
+  c.doubleWidth = static_cast<float>(s.get(P_DOUBLE_WIDTH));
+  c.doubleMix = static_cast<float>(s.get(P_DOUBLE_MIX));
   return c;
 }
 

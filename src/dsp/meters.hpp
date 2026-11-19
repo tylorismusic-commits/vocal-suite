@@ -6,6 +6,7 @@ namespace vocal {
 
 struct Meters {
   float grDb = 0.0f;
+  float gateGrDb = 0.0f;
   float compGrDb = 0.0f;
   float sibGrDb = 0.0f;
   float harshGrDb = 0.0f;

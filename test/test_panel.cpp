@@ -23,7 +23,7 @@ int main() {
   cairo_surface_t* surface =
       cairo_image_surface_create(CAIRO_FORMAT_ARGB32, kPanelWidth, kPanelHeight);
   cairo_t* cr = cairo_create(surface);
-  for (int tab = 0; tab < 8; ++tab) {
+  for (int tab = 0; tab < 10; ++tab) {
     state.tab = tab;
     panel.draw(cr, shared, state);
   }
@@ -73,9 +73,9 @@ int main() {
                      "Rock / Metal") == 0);
 
   // Every page tab selects its page.
-  for (int tab = 0; tab < 8; ++tab) {
+  for (int tab = 0; tab < 10; ++tab) {
     state.tab = 0;
-    panel.pointerDown(shared, state, 24 + tab * 124 + 59, 94, false);
+    panel.pointerDown(shared, state, 24 + tab * 98 + 47, 94, false);
     assert(state.tab == tab);
   }
 
@@ -84,9 +84,9 @@ int main() {
     const struct {
       int page;
       uint32_t param;
-    } kStages[7] = {{0, P_HPF_ON},   {1, P_COMP_ON}, {2, P_TONE_ON},
-                    {3, P_DRIVE_ON}, {4, P_DEESS_ON}, {5, P_ECHO_ON},
-                    {6, P_SPACE_ON}};
+    } kStages[9] = {{0, P_HPF_ON},    {1, P_GATE_ON},  {2, P_COMP_ON},
+                    {3, P_TONE_ON},   {4, P_DRIVE_ON}, {5, P_DEESS_ON},
+                    {6, P_DOUBLE_ON}, {7, P_ECHO_ON},  {8, P_SPACE_ON}};
     for (const auto& s : kStages) {
       state.tab = s.page;
       const double before = shared.get(s.param);
@@ -101,21 +101,21 @@ int main() {
 
   // Mode and effect choices select the requested value.
   {
-    state.tab = 1;
+    state.tab = 2;
     panel.pointerDown(shared, state, 297, 174, false);
     assert(shared.get(P_COMP_MODE) == 2.0);
     panel.pointerDown(shared, state, 105, 174, false);
     assert(shared.get(P_COMP_MODE) == 0.0);
 
-    state.tab = 3;
+    state.tab = 4;
     panel.pointerDown(shared, state, 379, 174, false);
     assert(shared.get(P_DRIVE_MODEL) == 3.0);
 
-    state.tab = 6;
+    state.tab = 8;
     panel.pointerDown(shared, state, 297, 174, false);
     assert(shared.get(P_SPACE_MODE) == 2.0);
 
-    state.tab = 5;
+    state.tab = 7;
     panel.pointerDown(shared, state, 93 + 9 * 72, 212, false);
     assert(shared.get(P_ECHO_DIV) == 9.0);
   }
@@ -128,17 +128,17 @@ int main() {
   panel.pointerDown(shared, state, 675, 314, false);
   assert(state.inputLearning);
 
-  state.tab = 1;
+  state.tab = 2;
   const double autoMakeup = shared.get(P_COMP_AUTO);
   panel.pointerDown(shared, state, 796, 193, false);
   assert(shared.get(P_COMP_AUTO) != autoMakeup);
 
-  state.tab = 2;
+  state.tab = 3;
   const double lowBell = shared.get(P_LOW_BELL);
   panel.pointerDown(shared, state, 186, 559, false);
   assert(shared.get(P_LOW_BELL) != lowBell);
 
-  state.tab = 4;
+  state.tab = 5;
   panel.pointerDown(shared, state, 832, 414, false);
   assert(state.sibLearning);
   shared.sibLearnHz.store(7200.0f);
@@ -148,12 +148,12 @@ int main() {
   }
   assert(shared.get(P_SIB_FREQ) > 7100.0 && shared.get(P_SIB_FREQ) < 7300.0);
 
-  state.tab = 5;
+  state.tab = 7;
   const double sync = shared.get(P_ECHO_SYNC);
   panel.pointerDown(shared, state, 105, 171, false);
   assert(shared.get(P_ECHO_SYNC) != sync);
 
-  state.tab = 7;
+  state.tab = 9;
   const double limit = shared.get(P_LIMIT_ON);
   panel.pointerDown(shared, state, 700, 314, false);
   assert(shared.get(P_LIMIT_ON) != limit);
@@ -186,6 +186,17 @@ int main() {
   assert(state.presetScroll >= 1);
   state.presetOpen = 0;
 
+  // Double-click restores the active preset value.
+  state.tab = 2;
+  shared.set(P_COMP_AMOUNT, 0.0);
+  panel.pointerDown(shared, state, 180, 340, false);
+  panel.pointerUp(shared);
+  panel.pointerDown(shared, state, 180, 340, false);
+  panel.pointerUp(shared);
+  assert(std::fabs(shared.get(P_COMP_AMOUNT) -
+                   factoryPresets()[state.presetIndex].values[P_COMP_AMOUNT]) <
+         1.0e-6);
+
   // Right-click opens text entry; Enter applies; double-click resets.
   state.tab = 0;
   shared.set(P_INPUT, 0.0);
@@ -202,7 +213,7 @@ int main() {
   assert(std::fabs(shared.get(P_INPUT) - 0.0) < 1.0e-9);
 
   // Limiter ceiling knob is interactive.
-  state.tab = 7;
+  state.tab = 9;
   const double ceilingBefore = shared.get(P_LIMIT_CEILING);
   panel.pointerDown(shared, state, 700, 390, false);
   panel.pointerMove(shared, state, 700, 360, false);
@@ -210,7 +221,7 @@ int main() {
   assert(std::fabs(shared.get(P_LIMIT_CEILING) - ceilingBefore) > 1.0e-6);
 
   // In tempo-sync mode the Time knob is display-only.
-  state.tab = 5;
+  state.tab = 7;
   shared.set(P_ECHO_SYNC, 1.0);
   panel.pointerDown(shared, state, 100, 350, false);
   assert(!panel.dragging());
@@ -229,7 +240,7 @@ int main() {
 
   // A chain tab click changes the page.
   state.tab = 0;
-  panel.pointerDown(shared, state, 24 + 124 + 40, 90, false);
+  panel.pointerDown(shared, state, 24 + 98 + 47, 90, false);
   assert(state.tab == 1);
 
 

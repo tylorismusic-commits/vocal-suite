@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0-alpha.1 — 2026-11-19
+
+- New **GATE** stage before the compressor: threshold, range, attack and
+  release, with a 3 dB hysteresis window.
+- New **DOUBLE** stage before the echo: amount, delay, width and mix using
+  two short modulated delay taps.
+- Double-click now restores the active preset value, falling back to the
+  factory default when no preset is selected.
+- Two new factory presets: Tight Gate Vocal and Double Wide.
+- Panel now has ten stage pages.
+
 ## 0.1.0-alpha.2 — 2026-11-19
 
 - User preset bank: save, rename, duplicate, delete, export and drag-drop

@@ -403,6 +403,20 @@ inline const std::vector<Preset>& factoryPresets() {
                  {V(P_COMP_MODE, 2), V(P_COMP_AMOUNT, 3), V(P_COMP_RATIO, 0),
                   V(P_COMP_MIX, 100), V(P_DRIVE_ON, 0), V(P_DEESS_ON, 0),
                   V(P_ECHO_ON, 0), V(P_SPACE_ON, 0), V(P_OUTPUT, 0)}),
+      makePreset("Tight Gate Vocal", "Utility",
+                 "Fast gate for noisy rooms, with a gentle 24 dB floor.",
+                 VoiceTag::Any, IntensityTag::Natural,
+                 {V(P_GATE_ON, 1), V(P_GATE_THRESH, -42), V(P_GATE_RANGE, 24),
+                  V(P_GATE_ATTACK, 1.5), V(P_GATE_RELEASE, 110),
+                  V(P_COMP_MODE, 1), V(P_COMP_AMOUNT, 4), V(P_SPACE_ON, 0),
+                  V(P_ECHO_ON, 0), V(P_OUTPUT, 0)}),
+      makePreset("Double Wide", "Pop / Rap / Podcast",
+                 "Short doubled taps for a wider lead without chorus wobble.",
+                 VoiceTag::Any, IntensityTag::Forward,
+                 {V(P_DOUBLE_ON, 1), V(P_DOUBLE_AMOUNT, 42),
+                  V(P_DOUBLE_DELAY, 17), V(P_DOUBLE_WIDTH, 145),
+                  V(P_DOUBLE_MIX, 32), V(P_COMP_MODE, 0),
+                  V(P_COMP_AMOUNT, 4), V(P_AIR, 2), V(P_OUTPUT, 0)}),
   };
   return presets;
 }

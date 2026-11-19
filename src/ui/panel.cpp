@@ -50,11 +50,12 @@ constexpr uint32_t kLearnLevelButton = P_COUNT + 1;
 constexpr uint32_t kLearnSibButton = P_COUNT + 2;
 constexpr uint32_t kFlatButton = P_COUNT + 3;
 
-const char* const kPageNames[8] = {"INPUT", "COMP", "TONE", "DRIVE",
-                                   "DE-ESS", "ECHO", "SPACE", "OUTPUT"};
-const uint32_t kPageOnParam[8] = {P_HPF_ON,   P_COMP_ON, P_TONE_ON,
-                                  P_DRIVE_ON, P_DEESS_ON, P_ECHO_ON,
-                                  P_SPACE_ON, P_LIMIT_ON};
+const char* const kPageNames[10] = {
+    "INPUT", "GATE",  "COMP",  "TONE",  "DRIVE",
+    "DE-ESS", "DOUBLE", "ECHO", "SPACE", "OUTPUT"};
+const uint32_t kPageOnParam[10] = {
+    P_HPF_ON,   P_GATE_ON, P_COMP_ON,  P_TONE_ON,  P_DRIVE_ON,
+    P_DEESS_ON, P_DOUBLE_ON, P_ECHO_ON, P_SPACE_ON, P_LIMIT_ON};
 
 Rgb mix(Rgb a, Rgb b, double t) {
   return {a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t,
@@ -176,6 +177,18 @@ const char* Panel::presetName(const PanelState& state, int index) const {
   return "Init";
 }
 
+double Panel::presetValue(const PanelState& state, uint32_t param) const {
+  if (state.presetIndex >= 0 && state.presetIndex < presetCount()) {
+    return factoryPresets()[state.presetIndex].values[param];
+  }
+  const int user = state.presetIndex - presetCount();
+  if (user >= 0 && user < static_cast<int>(state.userPresets.size())) {
+    const auto& values = state.userPresets[static_cast<size_t>(user)].values;
+    if (param < values.size()) return values[param];
+  }
+  return kParamSpecs[param].def;
+}
+
 const char* Panel::presetCategory(const PanelState& state, int index) const {
   if (index >= 0 && index < presetCount()) {
     return factoryPresets()[index].category;
@@ -289,14 +302,14 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
   compare.label = "COMPARE";
   widgets_.push_back(compare);
 
-  for (int i = 0; i < 8; ++i) {
+  for (int i = 0; i < 10; ++i) {
     Widget t{};
     t.kind = Kind::PageTab;
     t.param = kPageOnParam[i];
     t.value = i;
-    t.x = 24 + i * 124;
+    t.x = 24 + i * 98;
     t.y = 68;
-    t.w = 118;
+    t.w = 94;
     t.h = 52;
     t.label = kPageNames[i];
     widgets_.push_back(t);
@@ -313,7 +326,7 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
     widgets_.push_back(railFader);
   }
 
-  if (tab < 7) {
+  if (tab < 9) {
     Widget on{};
     on.kind = Kind::Toggle;
     on.param = kPageOnParam[tab];
@@ -327,12 +340,14 @@ void Panel::buildLayout(const Shared& /*shared*/, int tab) {
 
   switch (tab) {
     case 0: pageInput(); break;
-    case 1: pageComp(); break;
-    case 2: pageTone(); break;
-    case 3: pageDrive(); break;
-    case 4: pageDeEss(); break;
-    case 5: pageEcho(); break;
-    case 6: pageSpace(); break;
+    case 1: pageGate(); break;
+    case 2: pageComp(); break;
+    case 3: pageTone(); break;
+    case 4: pageDrive(); break;
+    case 5: pageDeEss(); break;
+    case 6: pageDouble(); break;
+    case 7: pageEcho(); break;
+    case 8: pageSpace(); break;
     default: pageOut(); break;
   }
 }
@@ -373,6 +388,68 @@ void Panel::pageInput() {
   pol.h = 28;
   pol.label = "POLARITY";
   widgets_.push_back(pol);
+}
+
+void Panel::pageGate() {
+  Widget th{};
+  th.kind = Kind::Knob;
+  th.param = P_GATE_THRESH;
+  th.x = 180;
+  th.y = 340;
+  th.r = 54;
+  widgets_.push_back(th);
+  Widget range{};
+  range.kind = Kind::Knob;
+  range.param = P_GATE_RANGE;
+  range.x = 350;
+  range.y = 340;
+  range.r = 44;
+  widgets_.push_back(range);
+  Widget attack{};
+  attack.kind = Kind::Knob;
+  attack.param = P_GATE_ATTACK;
+  attack.x = 510;
+  attack.y = 340;
+  attack.r = 40;
+  widgets_.push_back(attack);
+  Widget release{};
+  release.kind = Kind::Knob;
+  release.param = P_GATE_RELEASE;
+  release.x = 660;
+  release.y = 340;
+  release.r = 40;
+  widgets_.push_back(release);
+}
+
+void Panel::pageDouble() {
+  Widget amount{};
+  amount.kind = Kind::Knob;
+  amount.param = P_DOUBLE_AMOUNT;
+  amount.x = 180;
+  amount.y = 340;
+  amount.r = 52;
+  widgets_.push_back(amount);
+  Widget delay{};
+  delay.kind = Kind::Knob;
+  delay.param = P_DOUBLE_DELAY;
+  delay.x = 350;
+  delay.y = 340;
+  delay.r = 44;
+  widgets_.push_back(delay);
+  Widget width{};
+  width.kind = Kind::Knob;
+  width.param = P_DOUBLE_WIDTH;
+  width.x = 520;
+  width.y = 340;
+  width.r = 44;
+  widgets_.push_back(width);
+  Widget mixw{};
+  mixw.kind = Kind::Knob;
+  mixw.param = P_DOUBLE_MIX;
+  mixw.x = 680;
+  mixw.y = 340;
+  mixw.r = 40;
+  widgets_.push_back(mixw);
 }
 
 void Panel::pageComp() {
@@ -863,7 +940,7 @@ void Panel::drawChain(cairo_t* cr, const Shared& shared,
                         ? shared.get(P_POWER) > 0.5
                         : shared.get(w.param) > 0.5;
     drawPageTab(cr, w, active, on);
-    if (w.value < 7) {
+    if (w.value < 9) {
       text(cr, "\u203a", w.x + w.w + 3, w.y + 33, 20, 0, kDim.r, kDim.g,
            kDim.b);
     }
@@ -932,6 +1009,11 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
            60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
     case 1:
+      text(cr, "GATE / EXPANDER", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
+      text(cr, "Downward expander before the compressor. Range sets how far the floor drops.",
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
+      break;
+    case 2:
       text(cr, "COMPRESSOR", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       drawCompCurve(cr, shared, 60, 420, 640, 150);
       drawGrBar(cr, 748, 220, 50, 200, shared.compGrDb.load(), 24.0,
@@ -943,13 +1025,13 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       text(cr, "Opto is smooth, FET is fast and aggressive, VCA is controlled and modern.",
            60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
-    case 2:
+    case 3:
       text(cr, "TONE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       drawEqCurve(cr, shared, 60, 155, 670, 180);
       text(cr, "Use broad strokes. Flat is a true bypass.",
            60, 588, 9, 0, kDim.r, kDim.g, kDim.b);
       break;
-    case 3:
+    case 4:
       text(cr, "DRIVE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       drawDriveCurve(cr, shared, 60, 430, 700, 130);
       {
@@ -984,7 +1066,7 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       text(cr, "Valve adds weight, Console adds edge, Tape softens, Clip is for screams.",
            60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
-    case 4:
+    case 5:
       text(cr, "DE-ESS", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       text(cr, "SIBILANCE", 240, 230, 9, 1, kDim.r, kDim.g, kDim.b);
       text(cr, "HARSHNESS", 630, 230, 9, 1, kDim.r, kDim.g, kDim.b);
@@ -1044,7 +1126,34 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       text(cr, "Start with amount 2-4. Raise until the S's stop poking out.",
            60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
-    case 5:
+    case 6:
+      text(cr, "DOUBLER / WIDTH", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
+      {
+        const double gx = 60, gy = 420, gw = 720, gh = 120;
+        roundRect(cr, gx, gy, gw, gh, 4);
+        setRgb(cr, {0.055, 0.060, 0.065});
+        cairo_fill(cr);
+        setRgb(cr, kDim, 0.22);
+        cairo_set_line_width(cr, 1);
+        cairo_move_to(cr, gx + 8, gy + gh * 0.5);
+        cairo_line_to(cr, gx + gw - 8, gy + gh * 0.5);
+        cairo_stroke(cr);
+        const double d = shared.get(P_DOUBLE_DELAY) / 40.0;
+        const double w = shared.get(P_DOUBLE_WIDTH) / 200.0;
+        for (int tap = 0; tap < 2; ++tap) {
+          const double px = gx + 20 + (gw - 40) * d;
+          const double spread = (gh * 0.35) * w * (tap == 0 ? 1.0 : -1.0);
+          setRgb(cr, tap == 0 ? kAccent : kAmber, 0.9);
+          cairo_rectangle(cr, px - 2, gy + gh * 0.5 + spread - 5, 4, 10);
+          cairo_fill(cr);
+        }
+        text(cr, "LEFT + RIGHT DELAY TAPS", gx + 10, gy + 14, 8, 0, kDim.r,
+             kDim.g, kDim.b);
+      }
+      text(cr, "Short modulated delays widen the vocal without a chorus wobble.",
+           60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
+      break;
+    case 7:
       text(cr, "ECHO", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       {
         const double gx = 60, gy = 430, gw = 720, gh = 110;
@@ -1090,7 +1199,7 @@ void Panel::drawBody(cairo_t* cr, Shared& shared,
       text(cr, "Tempo-synced by default. Duck keeps the repeats under the vocal.",
            60, 585, 10, 0, kDim.r, kDim.g, kDim.b);
       break;
-    case 6:
+    case 8:
       text(cr, "SPACE", 60, 150, 11, 0, kDim.r, kDim.g, kDim.b);
       {
         const double gx = 60, gy = 410, gw = 720, gh = 150;
@@ -1783,7 +1892,7 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
       const auto now = std::chrono::steady_clock::now();
       if (hasLastClick_ && lastClickParam_ == w.param &&
           now - lastClickTime_ < std::chrono::milliseconds(350)) {
-        shared.set(w.param, kParamSpecs[w.param].def);
+        shared.set(w.param, presetValue(state, w.param));
         state.presetDirty = true;
         hasLastClick_ = false;
         return true;

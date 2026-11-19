@@ -80,6 +80,20 @@ struct Controls {
   float spaceDuck = 40.0f;
   float spaceMix = 0.0f;
 
+  // Gate / expander
+  bool gateOn = false;
+  float gateThresholdDb = -45.0f;
+  float gateRangeDb = 30.0f;
+  float gateAttackMs = 2.0f;
+  float gateReleaseMs = 120.0f;
+
+  // Doubler / width
+  bool doubleOn = false;
+  float doubleAmount = 45.0f;  // percent
+  float doubleDelayMs = 18.0f;
+  float doubleWidth = 130.0f;  // percent
+  float doubleMix = 35.0f;     // percent
+
   // Output
   float outputDb = 0.0f;
   bool limitOn = true;

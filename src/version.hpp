@@ -6,8 +6,8 @@ namespace vocal {
 
 // Keep these in step with `project(vocal_suite VERSION ...)` in CMakeLists.txt.
 constexpr int kVersionMajor = 0;
-constexpr int kVersionMinor = 1;
+constexpr int kVersionMinor = 2;
 constexpr int kVersionMicro = 0;
-constexpr const char* kVersion = "0.1.0-alpha.2";
+constexpr const char* kVersion = "0.2.0-alpha.1";
 
 } // namespace vocal

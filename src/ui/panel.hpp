@@ -90,6 +90,7 @@ public:
   int presetTotal(const PanelState& state) const;
   const char* presetName(const PanelState& state, int index) const;
   const char* presetCategory(const PanelState& state, int index) const;
+  double presetValue(const PanelState& state, uint32_t param) const;
   std::vector<int> presetOrder(const PanelState& state) const;
   void reloadUserPresets(PanelState& state);
   void rescanUserPresets(PanelState& state);
@@ -164,10 +165,12 @@ private:
   bool hit(const Widget& w, double x, double y) const;
   const Widget* find(uint32_t param, Kind kind) const;
   void pageInput();
+  void pageGate();
   void pageComp();
   void pageTone();
   void pageDrive();
   void pageDeEss();
+  void pageDouble();
   void pageEcho();
   void pageSpace();
   void pageOut();

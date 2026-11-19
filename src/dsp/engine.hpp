@@ -17,7 +17,9 @@
 #include "controls.hpp"
 #include "deess.hpp"
 #include "drive.hpp"
+#include "double.hpp"
 #include "echo.hpp"
+#include "gate.hpp"
 #include "input.hpp"
 #include "meters.hpp"
 #include "output.hpp"
@@ -31,10 +33,12 @@ public:
   void prepare(float sampleRate, float /*oversample*/ = -1.0f) noexcept {
     sr_ = sampleRate > 0.0f ? sampleRate : 48000.0f;
     input_.prepare(sr_);
+    gate_.prepare(sr_);
     comp_.prepare(sr_);
     tone_.prepare(sr_);
     drive_.prepare(sr_);
     deess_.prepare(sr_);
+    doubler_.prepare(sr_);
     echo_.prepare(sr_);
     space_.prepare(sr_);
     output_.prepare(sr_);
@@ -57,10 +61,12 @@ public:
     }
     bpm_ = controls_.bpm > 1.0f ? controls_.bpm : 120.0f;
     input_.setControls(controls_);
+    gate_.setControls(controls_);
     comp_.setControls(controls_);
     tone_.setControls(controls_);
     drive_.setControls(controls_);
     deess_.setControls(controls_);
+    doubler_.setControls(controls_);
     echo_.setControls(controls_);
     space_.setControls(controls_);
     output_.setControls(controls_);
@@ -95,10 +101,12 @@ public:
 
   void reset() noexcept {
     input_.reset();
+    gate_.reset();
     comp_.reset();
     tone_.reset();
     drive_.reset();
     deess_.reset();
+    doubler_.reset();
     echo_.reset();
     space_.reset();
     output_.reset();
@@ -138,13 +146,18 @@ public:
       if (!controls_.power || controls_.compare) {
         left[i] = l;
         right[i] = r;
-        updateMeters(l, r, l, r, 0.0f, 0.0f, 0.0f, 0.0f, meters);
+        updateMeters(l, r, l, r, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, meters);
         continue;
       }
 
       input_.process(l, r);
       const float inL = l;
       const float inR = r;
+
+      float gateGr = 0.0f;
+      if (controls_.gateOn) {
+        gateGr = gate_.process(l, r);
+      }
 
       float compGr = 0.0f;
       if (controls_.compOn) {
@@ -185,6 +198,10 @@ public:
         deess_.process(l, r, sibGr, harshGr);
       }
 
+      if (controls_.doubleOn) {
+        doubler_.process(l, r);
+      }
+
       if (controls_.echoOn) {
         echo_.process(l, r);
       }
@@ -197,7 +214,8 @@ public:
 
       left[i] = l;
       right[i] = r;
-      updateMeters(inL, inR, l, r, compGr, sibGr, harshGr, limGr, meters);
+      updateMeters(inL, inR, l, r, gateGr, compGr, sibGr, harshGr, limGr,
+                   meters);
       if (controls_.inputLearnActive) {
         const float peak = std::max(std::fabs(inL), std::fabs(inR));
         inputLearnPeak_ = std::max(inputLearnPeak_, gainToDb(peak + 1.0e-12f));
@@ -240,8 +258,8 @@ private:
     return state;
   }
 
-  void updateMeters(float inL, float inR, float outL, float outR, float compGr,
-                    float sibGr, float harshGr, float limGr,
+  void updateMeters(float inL, float inR, float outL, float outR, float gateGr,
+                    float compGr, float sibGr, float harshGr, float limGr,
                     Meters& m) noexcept {
     const float pl = peakUpdate(inL, inPeakL_);
     const float pr = peakUpdate(inR, inPeakR_);
@@ -254,10 +272,12 @@ private:
     m.inPeakDb = std::max(m.inPeakLDb, m.inPeakRDb);
     m.outPeakDb = std::max(m.outPeakLDb, m.outPeakRDb);
     m.outVuDb = m.outPeakDb;
+    gateGrHold_ = std::max(gateGr, gateGrHold_ * 0.9995f);
     compGrHold_ = std::max(compGr, compGrHold_ * 0.9995f);
     sibGrHold_ = std::max(sibGr, sibGrHold_ * 0.9995f);
     harshGrHold_ = std::max(harshGr, harshGrHold_ * 0.9995f);
     limGrHold_ = std::max(limGr, limGrHold_ * 0.9995f);
+    m.gateGrDb = gateGrHold_;
     m.compGrDb = compGrHold_;
     m.grDb = compGrHold_;
     m.sibGrDb = sibGrHold_;
@@ -271,10 +291,12 @@ private:
   bool hostTempoActive_ = false;
   Controls controls_;
   InputStage input_;
+  Gate gate_;
   VocalComp comp_;
   Tone tone_;
   Drive drive_;
   DeEss deess_;
+  Doubler doubler_;
   Echo echo_;
   Space space_;
   OutputStage output_;
@@ -283,6 +305,7 @@ private:
   float sibLearnHz_ = 6500.0f;
   float sibLearnEnergy_ = -120.0f;
   bool sibLearnValid_ = false;
+  float gateGrHold_ = 0.0f;
   float compGrHold_ = 0.0f;
   float sibGrHold_ = 0.0f;
   float harshGrHold_ = 0.0f;
