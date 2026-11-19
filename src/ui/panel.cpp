@@ -12,8 +12,11 @@
 #include FT_FREETYPE_H
 
 #include <algorithm>
+#include <cctype>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <filesystem>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -151,6 +154,46 @@ std::vector<int> visiblePresets(const PanelState& state) {
 }
 
 } // namespace
+
+double nowMs() {
+  return std::chrono::duration<double, std::milli>(
+             std::chrono::steady_clock::now().time_since_epoch())
+      .count();
+}
+
+int Panel::presetTotal(const PanelState& state) const {
+  return presetCount() + static_cast<int>(state.userPresets.size());
+}
+
+const char* Panel::presetName(const PanelState& state, int index) const {
+  if (index >= 0 && index < presetCount()) {
+    return factoryPresets()[index].name;
+  }
+  const int user = index - presetCount();
+  if (user >= 0 && user < static_cast<int>(state.userPresets.size())) {
+    return state.userPresets[static_cast<size_t>(user)].name.c_str();
+  }
+  return "Init";
+}
+
+const char* Panel::presetCategory(const PanelState& state, int index) const {
+  if (index >= 0 && index < presetCount()) {
+    return factoryPresets()[index].category;
+  }
+  const int user = index - presetCount();
+  if (user >= 0 && user < static_cast<int>(state.userPresets.size())) {
+    return "User";
+  }
+  return "";
+}
+
+std::vector<int> Panel::presetOrder(const PanelState& state) const {
+  std::vector<int> order = visiblePresets(state);
+  for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+    order.push_back(presetCount() + i);
+  }
+  return order;
+}
 
 Panel::Panel() = default;
 
@@ -778,8 +821,8 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
   text(cr, "\u203a", x + w - 16, y + 25, 22, 1, kDim.r, kDim.g, kDim.b);
 
   const char* name = "Init";
-  if (state.presetIndex >= 0 && state.presetIndex < presetCount()) {
-    name = factoryPresets()[state.presetIndex].name;
+  if (state.presetIndex >= 0 && state.presetIndex < presetTotal(state)) {
+    name = presetName(state, state.presetIndex);
   }
   text(cr, name, x + w * 0.5, y + 24, 13, 1, kText.r, kText.g, kText.b);
   if (state.presetDirty) {
@@ -1474,6 +1517,9 @@ void Panel::drawFooter(cairo_t* cr, const Shared& shared,
   const char* blurb = "";
   if (state.presetIndex >= 0 && state.presetIndex < presetCount()) {
     blurb = factoryPresets()[state.presetIndex].blurb;
+  } else if (state.presetIndex >= presetCount() &&
+             state.presetIndex < presetTotal(state)) {
+    blurb = "User preset. Save, rename or export it from the preset browser.";
   } else {
     blurb = "Pick a preset, set the input level, then compare.";
   }
@@ -1668,11 +1714,11 @@ bool Panel::pointerDown(Shared& shared, PanelState& state, double x, double y,
   }
   if (y < 58 && x >= 72 && x <= 402) {
     if (x < 100) {
-      const int n = presetCount();
+      const int n = presetTotal(state);
       state.presetIndex = state.presetIndex <= 0 ? n - 1 : state.presetIndex - 1;
       applyPreset(shared, state, state.presetIndex);
     } else if (x > 374) {
-      const int n = presetCount();
+      const int n = presetTotal(state);
       state.presetIndex = state.presetIndex < 0 ? 0 : (state.presetIndex + 1) % n;
       applyPreset(shared, state, state.presetIndex);
     } else {
@@ -1788,6 +1834,44 @@ bool Panel::contextDown(Shared& shared, PanelState& state, double x, double y) {
 
 bool Panel::keyEvent(Shared& shared, PanelState& state, int key,
                      const char* text) {
+  if (state.savePreset || state.renamePreset) {
+    if (key == 13) return commitPresetName(shared, state);
+    if (key == 27) {
+      state.savePreset = false;
+      state.renamePreset = false;
+      state.presetText.clear();
+      state.presetTextFresh = false;
+      state.presetError.clear();
+      state.presetOverwriteConfirm = false;
+      state.presetOpen = 0;
+      return true;
+    }
+    if (key == 8) {
+      state.presetError.clear();
+      state.presetOverwriteConfirm = false;
+      if (state.presetTextFresh) {
+        state.presetText.clear();
+        state.presetTextFresh = false;
+      } else if (!state.presetText.empty()) {
+        state.presetText.pop_back();
+      }
+      return true;
+    }
+    if (text && text[0]) {
+      state.presetError.clear();
+      state.presetOverwriteConfirm = false;
+      if (state.presetTextFresh) {
+        state.presetText.clear();
+        state.presetTextFresh = false;
+      }
+      for (const char* c = text; *c; ++c) {
+        if (*c >= 32 && *c < 127 && state.presetText.size() < 60) {
+          state.presetText.push_back(*c);
+        }
+      }
+    }
+    return true;
+  }
   if (state.editParam < 0) {
     return false;
   }
@@ -1865,7 +1949,7 @@ bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
                   double dy) {
   if (state.presetOpen) {
     const int maxScroll =
-        std::max(0, static_cast<int>(visiblePresets(state).size()) - 10);
+        std::max(0, static_cast<int>(presetOrder(state).size()) - 10);
     state.presetScroll = std::min(
         maxScroll, std::max(0, state.presetScroll + (dy < 0 ? 1 : -1)));
     return true;
@@ -1904,7 +1988,20 @@ bool Panel::wheel(Shared& shared, PanelState& state, double x, double y,
 // ---------------------------------------------------------------------------
 
 void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
-  if (index < 0 || index >= presetCount()) {
+  if (index < 0 || index >= presetTotal(state)) {
+    return;
+  }
+  if (index >= presetCount()) {
+    const int user = index - presetCount();
+    if (user < 0 || user >= static_cast<int>(state.userPresets.size())) return;
+    const auto& values = state.userPresets[static_cast<size_t>(user)].values;
+    for (uint32_t i = 0; i < P_COUNT && i < values.size(); ++i) {
+      shared.set(i, values[i]);
+    }
+    shared.compare.store(false, std::memory_order_relaxed);
+    state.editParam = -1;
+    state.presetIndex = index;
+    state.presetDirty = false;
     return;
   }
   const Preset& p = factoryPresets()[index];
@@ -1924,6 +2021,7 @@ void Panel::applyPreset(Shared& shared, PanelState& state, int index) const {
 bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
                               double y) {
   const double lx = 56, ly = 58, lw = 580, lh = 520;
+  if (state.savePreset || state.renamePreset) return true;
   if (x < lx || x > lx + lw || y < ly || y > ly + lh) {
     return false;
   }
@@ -1946,14 +2044,14 @@ bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
   }
 
   const double rowH = 22.0;
-  const double bottom = 520.0;
+  const double bottom = 452.0;
   double cy = 146.0;
-  const std::vector<int> order = visiblePresets(state);
+  const std::vector<int> order = presetOrder(state);
   int last = -1;
   for (int k = state.presetScroll; k < static_cast<int>(order.size()); ++k) {
-    const Preset& p = factoryPresets()[order[k]];
-    if (last < 0 || std::strcmp(p.category,
-                                factoryPresets()[order[last]].category) != 0) {
+    const char* category = presetCategory(state, order[k]);
+    if (last < 0 || std::strcmp(category,
+                                presetCategory(state, order[last])) != 0) {
       if (cy + 18 + rowH > bottom) {
         break;
       }
@@ -1970,6 +2068,254 @@ bool Panel::handlePresetClick(Shared& shared, PanelState& state, double x,
     }
     cy += rowH;
   }
+
+  const double footerY = 458.0;
+  const double row2 = footerY + 30;
+  const bool userCurrent = state.presetIndex >= presetCount() &&
+                           state.presetIndex < presetTotal(state);
+  const bool anyCurrent = state.presetIndex >= 0 &&
+                          state.presetIndex < presetTotal(state);
+  const bool inRow1 = y >= footerY && y <= footerY + 24;
+  const bool inRow2 = y >= row2 && y <= row2 + 24;
+  if (inRow1 && x >= lx + 10 && x <= lx + 74) {
+    state.savePreset = true;
+    state.renamePreset = false;
+    state.deletePresetConfirm = false;
+    state.presetError.clear();
+    state.presetOverwriteConfirm = false;
+    state.presetText = userCurrent ? presetName(state, state.presetIndex)
+                                   : "My Preset";
+    state.presetTextFresh = true;
+    return true;
+  }
+  if (anyCurrent && inRow1 && x >= lx + 80 && x <= lx + 164) {
+    duplicatePreset(shared, state);
+    state.presetOpen = 0;
+    return true;
+  }
+  if (inRow1 && x >= lx + lw - 72 && x <= lx + lw - 10) {
+    state.presetOpen = 0;
+    return true;
+  }
+  if (userCurrent && inRow2 && x >= lx + 10 && x <= lx + 74) {
+    state.renamePreset = true;
+    state.savePreset = false;
+    state.deletePresetConfirm = false;
+    state.presetError.clear();
+    state.presetOverwriteConfirm = false;
+    state.presetText = presetName(state, state.presetIndex);
+    state.presetTextFresh = true;
+    return true;
+  }
+  if (userCurrent && inRow2 && x >= lx + 80 && x <= lx + 144) {
+    if (!state.deletePresetConfirm) {
+      state.deletePresetConfirm = true;
+      return true;
+    }
+    const std::string name = presetName(state, state.presetIndex);
+    if (deleteUserPreset(userPresetDir(), name)) {
+      reloadUserPresets(state);
+      state.presetIndex = -1;
+      state.presetDirty = true;
+      setPresetNotice(state, "Deleted · " + name);
+    }
+    state.deletePresetConfirm = false;
+    state.presetOpen = 0;
+    return true;
+  }
+  state.deletePresetConfirm = false;
+  if (anyCurrent &&
+      ((userCurrent && inRow2 && x >= lx + 150 && x <= lx + 214) ||
+       (!userCurrent && inRow2 && x >= lx + 10 && x <= lx + 74))) {
+    exportPreset(shared, state);
+    state.presetOpen = 0;
+    return true;
+  }
+
+  return true;
+}
+
+void Panel::reloadUserPresets(PanelState& state) {
+  state.userPresets = loadUserPresets(userPresetDir());
+}
+
+void Panel::rescanUserPresets(PanelState& state) {
+  std::string selected;
+  if (state.presetIndex >= presetCount() &&
+      state.presetIndex < presetTotal(state)) {
+    selected = presetName(state, state.presetIndex);
+  }
+  reloadUserPresets(state);
+  if (state.presetIndex < presetCount()) return;
+  int found = -1;
+  for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+    if (state.userPresets[static_cast<size_t>(i)].name == selected) {
+      found = presetCount() + i;
+      break;
+    }
+  }
+  state.presetIndex = found;
+  if (found < 0) state.presetDirty = false;
+}
+
+void Panel::setPresetNotice(PanelState& state, const std::string& text) const {
+  state.presetNotice = text;
+  state.presetNoticeUntil = nowMs() + 3500.0;
+}
+
+void Panel::duplicatePreset(Shared& shared, PanelState& state) {
+  const int index = state.presetIndex;
+  if (index < 0 || index >= presetTotal(state)) return;
+  std::vector<double> values;
+  std::string base;
+  if (index >= presetCount()) {
+    const int user = index - presetCount();
+    if (user < 0 || user >= static_cast<int>(state.userPresets.size())) return;
+    values = state.userPresets[static_cast<size_t>(user)].values;
+    base = state.userPresets[static_cast<size_t>(user)].name;
+  } else {
+    values.reserve(P_COUNT);
+    for (uint32_t i = 0; i < P_COUNT; ++i) values.push_back(shared.get(i));
+    base = factoryPresets()[index].name;
+  }
+  const std::string name =
+      uniquePresetName(userPresetDir(), base + " copy");
+  if (!writeUserPreset(userPresetDir(), name, values)) {
+    setPresetNotice(state, "Duplicate failed");
+    return;
+  }
+  reloadUserPresets(state);
+  int found = -1;
+  for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+    if (state.userPresets[static_cast<size_t>(i)].name == name) {
+      found = presetCount() + i;
+      break;
+    }
+  }
+  state.presetIndex = found;
+  state.presetDirty = false;
+  setPresetNotice(state, "Duplicated · " + name);
+}
+
+void Panel::exportPreset(const Shared& shared, PanelState& state) const {
+  const int index = state.presetIndex;
+  if (index < 0 || index >= presetTotal(state)) return;
+  std::vector<double> values;
+  values.reserve(P_COUNT);
+  for (uint32_t i = 0; i < P_COUNT; ++i) values.push_back(shared.get(i));
+  const std::string name = presetName(state, index);
+  if (!writeUserPreset(userPresetExportDir(), name, values)) {
+    setPresetNotice(state, "Export failed");
+    return;
+  }
+  setPresetNotice(state, "Exported · " + name);
+}
+
+bool Panel::importPresetFile(Shared& shared, PanelState& state,
+                             const std::string& path) {
+  UserPreset preset;
+  if (!readUserPresetFile(path, preset)) {
+    setPresetNotice(state, "Not a Vocal Suite preset");
+    return false;
+  }
+  const std::string name = uniquePresetName(userPresetDir(), preset.name);
+  if (!writeUserPreset(userPresetDir(), name, preset.values)) {
+    setPresetNotice(state, "Import failed");
+    return false;
+  }
+  reloadUserPresets(state);
+  int found = -1;
+  for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+    if (state.userPresets[static_cast<size_t>(i)].name == name) {
+      found = presetCount() + i;
+      break;
+    }
+  }
+  if (found >= 0) applyPreset(shared, state, found);
+  state.presetError.clear();
+  state.presetOpen = 0;
+  setPresetNotice(state, "Imported · " + name);
+  return true;
+}
+
+bool Panel::importDroppedFile(Shared& shared, PanelState& state,
+                              const std::string& path) {
+  std::string ext = std::filesystem::path(path).extension().string();
+  std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) {
+    return static_cast<char>(std::tolower(c));
+  });
+  if (ext == kUserPresetExt) return importPresetFile(shared, state, path);
+  return false;
+}
+
+bool Panel::commitPresetName(Shared& shared, PanelState& state) {
+  const std::string name = sanitizePresetName(state.presetText);
+  if (name.empty()) return false;
+  const std::filesystem::path target =
+      userPresetDir() / (name + kUserPresetExt);
+  std::error_code ec;
+  const bool exists = std::filesystem::exists(target, ec) && !ec;
+  if (state.savePreset) {
+    const std::string current =
+        state.presetIndex >= presetCount()
+            ? presetName(state, state.presetIndex)
+            : "";
+    if (exists && name != current && !state.presetOverwriteConfirm) {
+      state.presetError = "Name in use · Enter again to overwrite";
+      state.presetOverwriteConfirm = true;
+      return false;
+    }
+    if (!saveUserPreset(userPresetDir(), name, shared)) {
+      state.presetError = "Could not write the preset file";
+      return false;
+    }
+    reloadUserPresets(state);
+    int index = -1;
+    for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+      if (state.userPresets[static_cast<size_t>(i)].name == name) {
+        index = presetCount() + i;
+        break;
+      }
+    }
+    state.presetIndex = index;
+    state.presetDirty = false;
+    setPresetNotice(state, "Saved · " + name);
+  } else if (state.renamePreset) {
+    const int user = state.presetIndex - presetCount();
+    if (user < 0 || user >= static_cast<int>(state.userPresets.size())) {
+      return false;
+    }
+    const std::string oldName =
+        state.userPresets[static_cast<size_t>(user)].name;
+    if (exists && name != oldName) {
+      state.presetError = "Name already in use";
+      return false;
+    }
+    const std::vector<double> values =
+        state.userPresets[static_cast<size_t>(user)].values;
+    if (!renameUserPreset(userPresetDir(), oldName, name, values)) {
+      state.presetError = "Could not rename the preset file";
+      return false;
+    }
+    reloadUserPresets(state);
+    int index = -1;
+    for (int i = 0; i < static_cast<int>(state.userPresets.size()); ++i) {
+      if (state.userPresets[static_cast<size_t>(i)].name == name) {
+        index = presetCount() + i;
+        break;
+      }
+    }
+    state.presetIndex = index;
+    setPresetNotice(state, "Renamed · " + name);
+  }
+  state.savePreset = false;
+  state.renamePreset = false;
+  state.deletePresetConfirm = false;
+  state.presetOpen = 0;
+  state.presetText.clear();
+  state.presetTextFresh = false;
+  state.presetError.clear();
+  state.presetOverwriteConfirm = false;
   return true;
 }
 
@@ -2014,18 +2360,19 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
   }
 
   const double rowH = 22.0;
-  const double bottom = 520.0;
+  const double bottom = 452.0;
   double cy = 146.0;
-  const std::vector<int> order = visiblePresets(state);
+  const std::vector<int> order = presetOrder(state);
   int last = -1;
   for (int k = state.presetScroll; k < static_cast<int>(order.size()); ++k) {
-    const Preset& p = factoryPresets()[order[k]];
-    if (last < 0 || std::strcmp(p.category,
-                                factoryPresets()[order[last]].category) != 0) {
+    const int index = order[k];
+    const char* category = presetCategory(state, index);
+    if (last < 0 || std::strcmp(category,
+                                presetCategory(state, order[last])) != 0) {
       if (cy + 18 + rowH > bottom) {
         break;
       }
-      text(cr, p.category, x + 14, cy + 13, 8, 0, kAccent.r, kAccent.g,
+      text(cr, category, x + 14, cy + 13, 8, 0, kAccent.r, kAccent.g,
            kAccent.b);
       cy += 18;
       last = k;
@@ -2033,23 +2380,93 @@ void Panel::drawPresetList(cairo_t* cr, const Shared& shared,
     if (cy + rowH > bottom) {
       break;
     }
-    const bool sel = order[k] == state.presetIndex;
+    const bool sel = index == state.presetIndex;
     if (sel) {
       roundRect(cr, x + 6, cy, w - 12, rowH - 2, 3);
       setRgb(cr, kAccent, 0.22);
       cairo_fill(cr);
     }
-    text(cr, p.name, x + 16, cy + 15, 10, 0, sel ? kText.r : 0.80,
-         sel ? kText.g : 0.79, sel ? kText.b : 0.77);
-    const char* tag = p.voice == VoiceTag::Low ? "LOW"
-                      : p.voice == VoiceTag::High ? "HIGH"
-                      : p.voice == VoiceTag::Mid ? "MID"
-                                                 : "ANY";
+    text(cr, presetName(state, index), x + 16, cy + 15, 10, 0,
+         sel ? kText.r : 0.80, sel ? kText.g : 0.79, sel ? kText.b : 0.77);
+    const char* tag = "USR";
+    if (index < presetCount()) {
+      const VoiceTag voice = factoryPresets()[index].voice;
+      tag = voice == VoiceTag::Low ? "LOW"
+            : voice == VoiceTag::High ? "HIGH"
+            : voice == VoiceTag::Mid ? "MID"
+                                     : "ANY";
+    }
     text(cr, tag, x + w - 14, cy + 15, 7.5, 2, kDim.r, kDim.g, kDim.b);
     cy += rowH;
   }
   if (order.empty()) {
     text(cr, "No presets match these filters.", x + 16, 180, 10, 0,
+         kDim.r, kDim.g, kDim.b);
+  }
+  const bool userCurrent = state.presetIndex >= presetCount() &&
+                           state.presetIndex < presetTotal(state);
+  const bool anyCurrent = state.presetIndex >= 0 &&
+                          state.presetIndex < presetTotal(state);
+  const double footerY = 458.0;
+  const double row2 = footerY + 30;
+  if (state.savePreset || state.renamePreset) {
+    const double bx = x + 10;
+    const double bw = w - 20;
+    roundRect(cr, bx, footerY, bw, 24, 4);
+    setRgb(cr, {0.025, 0.03, 0.04}, 0.98);
+    cairo_fill(cr);
+    setRgb(cr, state.presetError.empty() ? kAccent : Rgb{0.82, 0.20, 0.18},
+           0.9);
+    cairo_set_line_width(cr, 1.2);
+    roundRect(cr, bx + 0.5, footerY + 0.5, bw - 1, 23, 4);
+    cairo_stroke(cr);
+    text(cr, state.renamePreset ? "RENAME" : "SAVE AS", bx + 8, footerY + 16,
+         8.0, 0, kDim.r, kDim.g, kDim.b);
+    const std::string shown = state.presetText + "|";
+    text(cr, shown.c_str(), bx + 68, footerY + 16, 10.5, 0, kAmber.r,
+         kAmber.g, kAmber.b);
+    text(cr, "Enter saves · Esc cancels", bx + bw - 8, footerY + 16, 7.5, 2,
+         kDim.r, kDim.g, kDim.b);
+    const std::string hint = state.presetError.empty()
+                                 ? "Saved in the user preset bank"
+                                 : state.presetError;
+    text(cr, hint.c_str(), bx + 2, footerY + 40, 8.0, 0,
+         state.presetError.empty() ? kDim.r : 0.82,
+         state.presetError.empty() ? kDim.g : 0.20,
+         state.presetError.empty() ? kDim.b : 0.18);
+    return;
+  }
+  auto button = [&](double bx, double by, double bw, const char* label,
+                    bool accent) {
+    roundRect(cr, bx, by, bw, 24, 4);
+    setRgb(cr, accent ? kAccent : Rgb{0.16, 0.17, 0.18});
+    cairo_fill(cr);
+    text(cr, label, bx + bw * 0.5, by + 16, 7.5, 1, accent ? 0.08 : kText.r,
+         accent ? 0.08 : kText.g, accent ? 0.06 : kText.b);
+  };
+  button(x + 10, footerY, 64, "SAVE", false);
+  if (anyCurrent) button(x + 80, footerY, 84, "DUPLICATE", false);
+  button(x + w - 72, footerY, 62, "CLOSE", false);
+  if (userCurrent) {
+    button(x + 10, row2, 64, "RENAME", false);
+    button(x + 80, row2, 64,
+           state.deletePresetConfirm ? "CONFIRM" : "DELETE",
+           state.deletePresetConfirm);
+    button(x + 150, row2, 64, "EXPORT", false);
+  } else if (anyCurrent) {
+    button(x + 10, row2, 64, "EXPORT", false);
+    text(cr, "Factory preset · read-only", x + 86, row2 + 16, 8.0, 0,
+         kDim.r, kDim.g, kDim.b);
+  }
+  const bool notice = state.presetNoticeUntil > nowMs();
+  if (notice) {
+    text(cr, state.presetNotice.c_str(), x + w - 10, row2 + 16, 7.5, 2,
+         kAccent.r, kAccent.g, kAccent.b);
+  } else if (!userCurrent && !anyCurrent) {
+    text(cr, "Save or drop a preset file", x + 12, row2 + 16, 8.0, 0,
+         kDim.r, kDim.g, kDim.b);
+  } else {
+    text(cr, "Drop file to import", x + w - 10, row2 + 16, 7.5, 2,
          kDim.r, kDim.g, kDim.b);
   }
   (void)shared;

@@ -21,7 +21,8 @@ processors; each stage has its own IN/OUT switch.
 - The 1040×640 panel draws all eight pages, the chain strip, meters, preset
   browser and filters.
 - 40 factory presets across Rock/Metal, Pop/Rap/Podcast, Screams, Clean and
-  Utility.
+  Utility, plus a user preset bank with save, rename, duplicate, delete, export
+  and drag-drop import.
 - Input level learn, sibilance-frequency learn and auto makeup.
 - Zero reported latency.
 - DSP tests, panel tests and CLAP/LV2 host load tests pass.

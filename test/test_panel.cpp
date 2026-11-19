@@ -4,7 +4,10 @@
 
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <string>
 
 #include "presets.hpp"
 #include "ui/panel.hpp"
@@ -228,6 +231,79 @@ int main() {
   state.tab = 0;
   panel.pointerDown(shared, state, 24 + 124 + 40, 90, false);
   assert(state.tab == 1);
+
+
+  {
+    namespace fs = std::filesystem;
+    const fs::path root = fs::temp_directory_path() / "vocal-suite-preset-test";
+    fs::remove_all(root);
+    fs::create_directories(root / "config");
+    fs::create_directories(root / "home");
+    const std::string oldXdg =
+        std::getenv("XDG_CONFIG_HOME") ? std::getenv("XDG_CONFIG_HOME") : "";
+    const std::string oldHome =
+        std::getenv("HOME") ? std::getenv("HOME") : "";
+    setenv("XDG_CONFIG_HOME", (root / "config").string().c_str(), 1);
+    setenv("HOME", (root / "home").string().c_str(), 1);
+
+    Shared us;
+    PanelState st;
+    Panel p;
+    p.loadFont("./assets/fonts");
+    us.set(P_INPUT, 0.63);
+    const double saved = us.get(P_INPUT);
+    p.pointerDown(us, st, 237, 30, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 90, 470, false);
+    p.pointerUp(us);
+    assert(st.savePreset);
+    p.keyEvent(us, st, 0, "My Vocal Preset");
+    p.keyEvent(us, st, 13, nullptr);
+    assert(st.userPresets.size() == 1);
+    assert(st.presetIndex == presetCount());
+    us.set(P_INPUT, 0.1);
+    p.applyPreset(us, st, st.presetIndex);
+    assert(std::fabs(us.get(P_INPUT) - saved) < 1e-9);
+
+    p.pointerDown(us, st, 237, 30, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 90, 500, false);
+    p.pointerUp(us);
+    p.keyEvent(us, st, 0, "Renamed");
+    p.keyEvent(us, st, 13, nullptr);
+    assert(st.userPresets.size() == 1 && st.userPresets[0].name == "Renamed");
+
+    p.pointerDown(us, st, 237, 30, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 150, 470, false);
+    p.pointerUp(us);
+    assert(st.userPresets.size() == 2);
+
+    p.pointerDown(us, st, 237, 30, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 230, 500, false);
+    p.pointerUp(us);
+    const fs::path exported = userPresetExportDir() /
+                              (std::string("Renamed copy") +
+                               kUserPresetExt);
+    assert(fs::exists(exported));
+
+    p.pointerDown(us, st, 237, 30, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 160, 500, false);
+    p.pointerUp(us);
+    p.pointerDown(us, st, 160, 500, false);
+    p.pointerUp(us);
+    assert(st.userPresets.size() == 1);
+    assert(p.importDroppedFile(us, st, exported.string()));
+    assert(st.userPresets.size() == 2);
+
+    if (!oldXdg.empty()) setenv("XDG_CONFIG_HOME", oldXdg.c_str(), 1);
+    else unsetenv("XDG_CONFIG_HOME");
+    if (!oldHome.empty()) setenv("HOME", oldHome.c_str(), 1);
+    else unsetenv("HOME");
+    fs::remove_all(root);
+  }
 
   std::printf("vocal panel: %d presets, pages draw\n", presetCount());
   return 0;
