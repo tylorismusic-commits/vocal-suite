@@ -24,7 +24,7 @@ jobs:
 
       - name: Toolchain
         run: |
-          brew install cmake pkg-config cairo freetype lv2 lilv
+          brew install cmake pkg-config cairo freetype lv2 lilv dylibbundler
           pkg-config --modversion cairo lv2
           cmake --version | head -1
 
@@ -40,3 +40,20 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build-macos --output-on-failure
+
+      - name: Check the CLAP bundle
+        run: |
+          file build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite
+          otool -L build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite | head -12
+          if otool -L build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite | grep -q '@executable_path'; then
+            echo "bundle still references @executable_path"; exit 1
+          fi
+          codesign --verify --verbose build-macos/clap/VocalSuite.clap
+
+      - name: Upload CLAP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-clap
+          path: build-macos/clap
+          if-no-files-found: warn
