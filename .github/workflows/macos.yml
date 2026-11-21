@@ -319,6 +319,42 @@ jobs:
           codesign --force --deep --sign - universal/vst3/VocalSuite.vst3
           codesign --force --deep --sign - universal/au/VocalSuite.component
 
+      - name: Check every dependency has both slices
+        run: |
+          # lipo keeps the two slices' load commands, so a Homebrew library that
+          # only one runner had can leave an architecture with a dangling
+          # dependency.  Resolve every @loader_path reference for every slice.
+          python3 - <<'PY'
+          import os, subprocess, sys
+
+          def archs(path):
+              out = subprocess.run(["file", "-b", path], capture_output=True, text=True).stdout
+              if "Mach-O" not in out:
+                  return []
+              return [a for a in ("arm64", "x86_64") if a in out]
+
+          def deps(path, arch):
+              out = subprocess.run(["llvm-otool", "-arch", arch, "-L", path],
+                                   capture_output=True, text=True).stdout
+              return [l.split()[0] for l in out.splitlines() if l.strip().startswith("@loader_path")]
+
+          problems = 0
+          for dirpath, _, files in os.walk("universal"):
+              for name in files:
+                  f = os.path.join(dirpath, name)
+                  for arch in archs(f):
+                      for dep in deps(f, arch):
+                          target = os.path.normpath(os.path.join(dirpath, dep.replace("@loader_path", ".")))
+                          if not os.path.exists(target):
+                              print(f"missing {arch} dependency: {f} -> {dep}")
+                              problems += 1
+                          elif arch not in archs(target):
+                              print(f"{arch} dependency is thin: {f} -> {dep} {archs(target)}")
+                              problems += 1
+          print("dependency problems:", problems)
+          sys.exit(1 if problems else 0)
+          PY
+
       - name: Validate the universal AUv2
         run: |
           mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
