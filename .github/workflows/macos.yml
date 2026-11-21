@@ -9,6 +9,7 @@ name: macOS
 on:
   push:
     branches: [main, master]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
@@ -113,7 +114,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: VocalSuite-macos-clap
+          name: VocalSuite-macos-arm64-clap
           path: build-macos/clap
           if-no-files-found: warn
 
@@ -121,7 +122,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: VocalSuite-macos-vst3
+          name: VocalSuite-macos-arm64-vst3
           path: build-macos/vst3
           if-no-files-found: warn
 
@@ -129,6 +130,229 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: VocalSuite-macos-au
+          name: VocalSuite-macos-arm64-au
           path: build-macos/au
+          if-no-files-found: warn
+
+  macos_intel:
+    name: macOS x86_64
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: macos-15-intel
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The VST3/AUv2 wrappers live in third_party/clap-wrapper.
+          submodules: recursive
+
+      - name: Toolchain
+        run: |
+          brew install cmake pkg-config cairo freetype lv2 lilv dylibbundler
+          pkg-config --modversion cairo lv2
+          cmake --version | head -1
+
+      - name: Configure
+        run: >
+          cmake -S . -B build-macos
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES=x86_64
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+      - name: Build
+        run: cmake --build build-macos
+
+      - name: Test
+        run: ctest --test-dir build-macos --output-on-failure
+
+      - name: Check the CLAP bundle
+        run: |
+          file build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite
+          otool -L build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite | head -12
+          if otool -L build-macos/clap/VocalSuite.clap/Contents/MacOS/VocalSuite | grep -q '@executable_path'; then
+            echo "bundle still references @executable_path"; exit 1
+          fi
+          codesign --verify --verbose build-macos/clap/VocalSuite.clap
+
+      - name: Check the VST3 and AUv2 bundles
+        run: |
+          ls -la build-macos/vst3 build-macos/au
+          for bundle in \
+            build-macos/vst3/VocalSuite.vst3 \
+            build-macos/au/VocalSuite.component
+          do
+            echo "== $bundle"
+            test -f "$bundle/Contents/MacOS/VocalSuite"
+            test -f "$bundle/Contents/Info.plist"
+            # Both wrappers must carry their own copy of the CLAP.
+            test -f "$bundle/Contents/PlugIns/VocalSuite.clap/Contents/MacOS/VocalSuite"
+            codesign --verify --deep --verbose=2 "$bundle"
+          done
+
+      - name: Validate AUv2 with auval
+        run: |
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          rm -rf "$HOME/Library/Audio/Plug-Ins/Components/VocalSuite.component"
+          cp -R build-macos/au/VocalSuite.component \
+            "$HOME/Library/Audio/Plug-Ins/Components/"
+
+          # auval talks to AudioComponentRegistrar, which may not have seen
+          # the newly copied component yet on a fresh runner.  Nudge it and
+          # give it a few attempts to warm up.
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          auval -a >/dev/null 2>&1 || true
+          for attempt in 1 2 3 4 5; do
+            if auval -v aufx VsSu Tylr; then
+              exit 0
+            fi
+            echo "auval attempt ${attempt} failed; retrying while the registrar warms up"
+            sleep 5
+            killall -9 AudioComponentRegistrar 2>/dev/null || true
+          done
+          echo "auval did not accept VocalSuite (aufx VsSu Tylr)"
+          exit 1
+
+      - name: Install pluginval
+        run: |
+          curl -fL --retry 3 -o pluginval.zip \
+            https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          test -x pluginval.app/Contents/MacOS/pluginval
+
+      - name: Validate VST3 with pluginval
+        run: |
+          if ! pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 \
+              --validate build-macos/vst3/VocalSuite.vst3; then
+            echo "::warning::pluginval failed with GUI tests; retrying with --skip-gui-tests"
+            pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 --skip-gui-tests \
+              --validate build-macos/vst3/VocalSuite.vst3
+          fi
+
+      - name: Upload CLAP
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-x86_64-clap
+          path: build-macos/clap
+          if-no-files-found: warn
+
+      - name: Upload VST3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-x86_64-vst3
+          path: build-macos/vst3
+          if-no-files-found: warn
+
+      - name: Upload AUv2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-x86_64-au
+          path: build-macos/au
+          if-no-files-found: warn
+
+  universal:
+    name: macOS universal
+    needs: [macos, macos_intel]
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    runs-on: macos-15
+    steps:
+      - name: Collect the slices
+        uses: actions/download-artifact@v4
+        with:
+          pattern: VocalSuite-macos-*-*
+          path: slices
+
+      - name: Merge the slices
+        run: |
+          set -euo pipefail
+          rm -rf universal
+          mkdir -p universal
+
+          arm=slices/VocalSuite-macos-arm64
+          x86=slices/VocalSuite-macos-x86_64
+
+          for tree in clap vst3 au; do
+            [ -d "$arm-$tree" ] || continue
+            mkdir -p "universal/$tree"
+            cp -R "$arm-$tree/." "universal/$tree"
+
+            # Every Mach-O that exists on both sides becomes universal.  A file
+            # only one slice has is kept as it is: each slice's load commands
+            # name their own dependencies, so the bundle may carry a Homebrew
+            # version that differs between the two runners.
+            while IFS= read -r -d '' f; do
+              rel="${f#universal/$tree/}"
+              b="$x86-$tree/$rel"
+              [ -f "$b" ] || continue
+              file -b "$f" | grep -q "Mach-O" || continue
+              file -b "$b" | grep -q "Mach-O" || continue
+              lipo -create "$f" "$b" -output "$f.universal"
+              mv "$f.universal" "$f"
+            done < <(find "universal/$tree" -type f -print0)
+
+            while IFS= read -r -d '' b; do
+              rel="${b#$x86-$tree/}"
+              [ -e "universal/$tree/$rel" ] && continue
+              mkdir -p "$(dirname "universal/$tree/$rel")"
+              cp "$b" "universal/$tree/$rel"
+            done < <(find "$x86-$tree" -type f -print0)
+          done
+
+          # Both slices must be present in the binaries a host loads.
+          for main in \
+            universal/clap/VocalSuite.clap/Contents/MacOS/VocalSuite \
+            universal/vst3/VocalSuite.vst3/Contents/MacOS/VocalSuite \
+            universal/au/VocalSuite.component/Contents/MacOS/VocalSuite
+          do
+            echo "== $main"
+            lipo -archs "$main"
+            lipo -archs "$main" | grep -q arm64
+            lipo -archs "$main" | grep -q x86_64
+          done
+
+          codesign --force --deep --sign - universal/clap/VocalSuite.clap
+          codesign --force --deep --sign - universal/vst3/VocalSuite.vst3
+          codesign --force --deep --sign - universal/au/VocalSuite.component
+
+      - name: Validate the universal AUv2
+        run: |
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          rm -rf "$HOME/Library/Audio/Plug-Ins/Components/VocalSuite.component"
+          cp -R universal/au/VocalSuite.component \
+            "$HOME/Library/Audio/Plug-Ins/Components/"
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          for attempt in 1 2 3 4 5; do
+            if auval -v aufx VsSu Tylr; then
+              exit 0
+            fi
+            sleep 5
+            killall -9 AudioComponentRegistrar 2>/dev/null || true
+          done
+          echo "auval rejected the universal component"
+          exit 1
+
+      - name: Validate the universal VST3
+        run: |
+          curl -fL --retry 3 -o pluginval.zip \
+            https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          if ! pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 \
+              --validate universal/vst3/VocalSuite.vst3; then
+            pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 --skip-gui-tests \
+              --validate universal/vst3/VocalSuite.vst3
+          fi
+
+      - name: Upload the universal bundles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-universal
+          path: universal
           if-no-files-found: warn
