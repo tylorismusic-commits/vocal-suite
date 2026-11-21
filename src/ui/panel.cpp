@@ -914,8 +914,15 @@ void Panel::drawPresetBar(cairo_t* cr, const Shared& shared,
       continue;
     }
     const bool held = shared.compare.load(std::memory_order_relaxed);
+    // Breathe slowly while bypassed so the DRY state is unmistakable even
+    // in peripheral vision.  ~1.6 s cycle, never fully dark.
+    const double phase = std::fmod(nowMs() * 0.001 * 0.62, 1.0);
+    const float breathe =
+        held ? static_cast<float>(0.55 + 0.45 * std::sin(phase * 2.0 * kPiD))
+             : 1.0f;
     roundRect(cr, ww.x, ww.y, ww.w, ww.h, 4);
-    setRgb(cr, held ? kAccent : Rgb{0.20, 0.21, 0.22});
+    setRgb(cr, held ? kAccent : Rgb{0.20, 0.21, 0.22},
+           held ? static_cast<double>(breathe) : 1.0);
     cairo_fill(cr);
     text(cr, held ? "DRY" : "COMPARE", ww.x + ww.w * 0.5, ww.y + 18, 10, 1,
          held ? 0.10 : 0.80, held ? 0.08 : 0.80, held ? 0.05 : 0.80);

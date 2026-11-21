@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Echo and Space Mix default to 15% while both pages stay off, so switching a
+  page on is immediately audible.
+- The Compare button slowly breathes while engaged so the DRY state is obvious.
+
 ## 0.2.0-alpha.1 — 2026-11-19
 
 - New **GATE** stage before the compressor: threshold, range, attack and

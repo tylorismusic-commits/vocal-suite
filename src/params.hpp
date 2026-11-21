@@ -227,7 +227,7 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      {}, 40.0, 80.0},
     {"echo_lofi", "Lo-Fi", "Echo", 0.0, 1.0, 0.0, true, false, true, nullptr, {},
      0.0, 1.0},
-    {"echo_mix", "Mix", "Echo", 0.0, 100.0, 0.0, false, false, false, "%", {},
+    {"echo_mix", "Mix", "Echo", 0.0, 100.0, 15.0, false, false, false, "%", {},
      10.0, 30.0},
     {"tempo", "Tempo", "Echo", 40.0, 300.0, 120.0, false, false, false, "BPM",
      {}, 80.0, 160.0},
@@ -249,7 +249,7 @@ inline constexpr ParamSpec kParamSpecs[P_COUNT] = {
      "%", {}, 50.0, 100.0},
     {"space_duck", "Duck", "Space", 0.0, 100.0, 40.0, false, false, false, "%",
      {}, 20.0, 60.0},
-    {"space_mix", "Mix", "Space", 0.0, 100.0, 0.0, false, false, false, "%", {},
+    {"space_mix", "Mix", "Space", 0.0, 100.0, 15.0, false, false, false, "%", {},
      8.0, 25.0},
 
     // Output
