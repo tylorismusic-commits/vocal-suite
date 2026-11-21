@@ -95,6 +95,69 @@ if(DYLIBBUNDLER)
             -d "${VOCAL_CLAP_BUNDLE}/Contents/Frameworks"
             -p "@loader_path/../Frameworks")
 endif()
+# ---------------------------------------------------------------------------
+# VST3 and AUv2 projections of the same CLAP (clap-wrapper)
+#
+# Both wrappers load the .clap we just built from their own Contents/PlugIns,
+# so the bundles stay self-contained: no copy of the plug-in has to be
+# installed for the wrapper to work.
+# ---------------------------------------------------------------------------
+set(CLAP_WRAPPER_DOWNLOAD_DEPENDENCIES ON)
+add_subdirectory(third_party/clap-wrapper EXCLUDE_FROM_ALL)
+
+set(VOCAL_VST3_BUNDLE "${CMAKE_BINARY_DIR}/vst3/VocalSuite.vst3")
+set(VOCAL_AUV2_BUNDLE "${CMAKE_BINARY_DIR}/au/VocalSuite.component")
+
+add_library(vocal_suite_vst3 MODULE)
+add_dependencies(vocal_suite_vst3 vocal_suite_bundle)
+target_add_vst3_wrapper(TARGET vocal_suite_vst3
+  OUTPUT_NAME "VocalSuite"
+  BUNDLE_IDENTIFIER "com.tylorismusic.vocalsuite"
+  BUNDLE_VERSION "${PROJECT_VERSION}"
+  ASSET_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/vst3"
+  MACOS_EMBEDDED_CLAP_LOCATION "${VOCAL_CLAP_BUNDLE}")
+
+add_library(vocal_suite_auv2 MODULE)
+add_dependencies(vocal_suite_auv2 vocal_suite_bundle)
+target_add_auv2_wrapper(TARGET vocal_suite_auv2
+  OUTPUT_NAME "VocalSuite"
+  BUNDLE_IDENTIFIER "com.tylorismusic.vocalsuite"
+  BUNDLE_VERSION "${PROJECT_VERSION}"
+  MANUFACTURER_NAME "tylorismusic"
+  MANUFACTURER_CODE "Tylr"
+  SUBTYPE_CODE "VsSu"
+  INSTRUMENT_TYPE "aufx"
+  MACOS_EMBEDDED_CLAP_LOCATION "${VOCAL_CLAP_BUNDLE}")
+set_target_properties(vocal_suite_auv2 PROPERTIES
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/au")
+
+# The wrapper generates Contents/Info.plist with its AudioComponents entry at
+# build time and copies it PRE_BUILD.  With the Makefile generator CMake then
+# writes its own default bundle plist, which has no AudioComponents, so the
+# component never registers (auval: "didn't find the component").  Copy the
+# generated plist again POST_BUILD; the signing targets run afterwards.
+add_custom_command(TARGET vocal_suite_auv2 POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+          "${CMAKE_BINARY_DIR}/vocal_suite_auv2-build-helper-output/auv2_Info.plist"
+          "$<TARGET_BUNDLE_DIR:vocal_suite_auv2>/Contents/Info.plist"
+  COMMENT "Installing the generated AUv2 Info.plist")
+
+# Embedding the CLAP happens PRE_BUILD, which invalidates any signature the
+# wrapper had, so re-sign the finished bundles.
+find_program(CODESIGN codesign)
+if(CODESIGN)
+  add_custom_target(vocal_suite_vst3_sign ALL
+    COMMAND "${CODESIGN}" --force --deep --sign - "${VOCAL_VST3_BUNDLE}"
+    COMMENT "Ad-hoc signing ${VOCAL_VST3_BUNDLE}"
+    DEPENDS vocal_suite_vst3
+    VERBATIM)
+  add_custom_target(vocal_suite_auv2_sign ALL
+    COMMAND "${CODESIGN}" --force --deep --sign - "${VOCAL_AUV2_BUNDLE}"
+    COMMENT "Ad-hoc signing ${VOCAL_AUV2_BUNDLE}"
+    DEPENDS vocal_suite_auv2
+    VERBATIM)
+endif()
+
 install(DIRECTORY "${VOCAL_CLAP_BUNDLE}" DESTINATION "${CLAP_DIR}")
 elseif(SUITE_X11)
 add_library(vocal_suite MODULE

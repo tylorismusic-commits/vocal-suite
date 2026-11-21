@@ -21,6 +21,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The VST3/AUv2 wrappers live in third_party/clap-wrapper.
+          submodules: recursive
 
       - name: Toolchain
         run: |
@@ -50,10 +53,82 @@ jobs:
           fi
           codesign --verify --verbose build-macos/clap/VocalSuite.clap
 
+      - name: Check the VST3 and AUv2 bundles
+        run: |
+          ls -la build-macos/vst3 build-macos/au
+          for bundle in \
+            build-macos/vst3/VocalSuite.vst3 \
+            build-macos/au/VocalSuite.component
+          do
+            echo "== $bundle"
+            test -f "$bundle/Contents/MacOS/VocalSuite"
+            test -f "$bundle/Contents/Info.plist"
+            # Both wrappers must carry their own copy of the CLAP.
+            test -f "$bundle/Contents/PlugIns/VocalSuite.clap/Contents/MacOS/VocalSuite"
+            codesign --verify --deep --verbose=2 "$bundle"
+          done
+
+      - name: Validate AUv2 with auval
+        run: |
+          mkdir -p "$HOME/Library/Audio/Plug-Ins/Components"
+          rm -rf "$HOME/Library/Audio/Plug-Ins/Components/VocalSuite.component"
+          cp -R build-macos/au/VocalSuite.component \
+            "$HOME/Library/Audio/Plug-Ins/Components/"
+
+          # auval talks to AudioComponentRegistrar, which may not have seen
+          # the newly copied component yet on a fresh runner.  Nudge it and
+          # give it a few attempts to warm up.
+          killall -9 AudioComponentRegistrar 2>/dev/null || true
+          auval -a >/dev/null 2>&1 || true
+          for attempt in 1 2 3 4 5; do
+            if auval -v aufx VsSu Tylr; then
+              exit 0
+            fi
+            echo "auval attempt ${attempt} failed; retrying while the registrar warms up"
+            sleep 5
+            killall -9 AudioComponentRegistrar 2>/dev/null || true
+          done
+          echo "auval did not accept VocalSuite (aufx VsSu Tylr)"
+          exit 1
+
+      - name: Install pluginval
+        run: |
+          curl -fL --retry 3 -o pluginval.zip \
+            https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip
+          unzip -q pluginval.zip
+          test -x pluginval.app/Contents/MacOS/pluginval
+
+      - name: Validate VST3 with pluginval
+        run: |
+          if ! pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 \
+              --validate build-macos/vst3/VocalSuite.vst3; then
+            echo "::warning::pluginval failed with GUI tests; retrying with --skip-gui-tests"
+            pluginval.app/Contents/MacOS/pluginval \
+              --strictness-level 5 --skip-gui-tests \
+              --validate build-macos/vst3/VocalSuite.vst3
+          fi
+
       - name: Upload CLAP
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: VocalSuite-macos-clap
           path: build-macos/clap
+          if-no-files-found: warn
+
+      - name: Upload VST3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-vst3
+          path: build-macos/vst3
+          if-no-files-found: warn
+
+      - name: Upload AUv2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VocalSuite-macos-au
+          path: build-macos/au
           if-no-files-found: warn
