@@ -68,6 +68,9 @@ jobs:
             test -f "$bundle/Contents/PlugIns/VocalSuite.clap/Contents/MacOS/VocalSuite"
             codesign --verify --deep --verbose=2 "$bundle"
           done
+          # Without this entry macOS never registers the component.
+          plutil -p build-macos/au/VocalSuite.component/Contents/Info.plist \
+            | grep -q AudioComponents
 
       - name: Validate AUv2 with auval
         run: |
